@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube Video Popup</title>
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #inputForm {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #youtubeLink {
+            padding: 10px;
+            width: 400px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: none;
+        }
+        #submitButton {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #3a3a3a;
+            color: white;
+        }
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .popup iframe {
+            width: 80%;
+            height: 80%;
+            border-radius: 10px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="inputForm">
+        <input type="text" id="youtubeLink" placeholder="Enter YouTube video link">
+        <button id="submitButton">Submit</button>
+    </div>
+    <div class="popup" id="popup">
+        <iframe id="popup-frame" src="" frameborder="0" allowfullscreen=""></iframe>
+    </div>
+
+    <script>
+        document.getElementById('submitButton').addEventListener('click', () => {
+            const youtubeLink = document.getElementById('youtubeLink').value;
+            const videoId = youtubeLink.match(/(?:youtube\.com\/(?:[^/]+\/[^/]+\/|(?:v|e(?:mbed)?|u\/\w+\/|shorts\/|watch\?(?:.*&)?v=))|youtu\.be\/)([^#&?]*).*/i)?.[1];
+            
+            if (videoId) {
+                const popupFrame = document.getElementById('popup-frame');
+                popupFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                document.getElementById('popup').style.display = 'flex';
+            } else {
+                alert('Invalid YouTube link');
+            }
+        });
+
+        document.getElementById('popup').addEventListener('click', () => {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('popup-frame').src = '';
+        });
+    </script>
+</body>
+</html>
