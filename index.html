@@ -24,21 +24,36 @@
             margin-bottom: 20px;
         }
         #youtubeLink {
-            padding: 10px;
+            padding: 10px 15px; /* Add left padding for better readability */
             width: 80%;
             margin-bottom: 10px;
-            border-radius: 4px;
+            border-radius: 15px; /* Reduced border-radius for input */
             border: none;
             font-size: 1em;
         }
-        #submitButton {
+        #submitButton, #clearButton {
             padding: 10px 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: 20px; /* Reduced border-radius for buttons */
             cursor: pointer;
+            font-size: 1em;
+            margin-top: 5px; /* Add some space between buttons */
+            transition: transform 0.2s ease; /* Smooth transition for transform */
+        }
+        #submitButton {
+            background-color: #FF0000; /* Red for the "Watch" button */
+            color: white;
+            font-weight: bold; /* Make "Watch" button text bold */
+        }
+        #submitButton:hover {
+            transform: scale(1.05); /* Scale up to 105% on hover */
+        }
+        #clearButton {
             background-color: #3a3a3a;
             color: white;
-            font-size: 1em;
+        }
+        #clearButton:hover {
+            transform: scale(1.05); /* Scale up to 105% on hover */
         }
         .popup {
             position: fixed;
@@ -64,19 +79,25 @@
             }
             #inputForm {
                 flex-direction: row;
-                justify-content: center;            }
+                justify-content: center;
+            }
             #youtubeLink {
                 width: 400px;
                 margin-right: 10px;
                 margin-bottom: 0;
+            }
+            #submitButton, #clearButton {
+                margin-top: 0;
+                margin-left: 10px; /* Add spacing between the buttons */
             }
         }
     </style>
 </head>
 <body>
     <div id="inputForm">
-        <input type="text" id="youtubeLink" placeholder="Enter YouTube video link">
+        <input type="text" id="youtubeLink" placeholder="Enter YouTube video link..">
         <button id="submitButton">Watch</button>
+        <button id="clearButton">Clear</button>
     </div>
     <div class="popup" id="popup">
         <iframe id="popup-frame" src="" frameborder="0" allowfullscreen=""></iframe>
@@ -94,6 +115,14 @@
             } else {
                 alert('Invalid YouTube link');
             }
+        });
+
+        document.getElementById('clearButton').addEventListener('click', () => {
+            const youtubeLink = document.getElementById('youtubeLink');
+            youtubeLink.value = ''; // Clear the input field
+            const popupFrame = document.getElementById('popup-frame');
+            popupFrame.src = ''; // Clear the iframe
+            document.getElementById('popup').style.display = 'none'; // Hide the popup
         });
 
         document.getElementById('popup').addEventListener('click', () => {
