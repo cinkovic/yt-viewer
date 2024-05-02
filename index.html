@@ -10,7 +10,7 @@
             color: white;
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 40px 20px 20px; /* Increased top padding */
+            padding: 40px 20px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -24,36 +24,34 @@
             margin-bottom: 20px;
         }
         #youtubeLink {
-            padding: 10px 15px; /* Add left padding for better readability */
+            padding: 10px 15px;
             width: 80%;
             margin-bottom: 10px;
-            border-radius: 15px; /* Reduced border-radius for input */
+            border-radius: 15px;
             border: none;
             font-size: 1em;
         }
         #submitButton, #clearButton {
             padding: 10px 20px;
             border: none;
-            border-radius: 20px; /* Reduced border-radius for buttons */
+            border-radius: 20px;
             cursor: pointer;
             font-size: 1em;
-            margin: 0 5px; /* Add space between the buttons and input */
-            transition: transform 0.2s ease; /* Smooth transition for transform */
+            margin: 0 5px;
+            transition: transform 0.2s ease;
         }
         #submitButton {
-            background-color: #f70606; /* Red for the "Watch" button */
+            background-color: #f70606;
             color: white;
-            font-weight: bold; /* Make "Watch" button text bold */
+            font-weight: bold;
         }
         #submitButton:hover {
-            transform: scale(1.09); /* Scale up on hover */
-        }
-        #clearButton {
+            transform: scale(1.09);
             background-color: #3a3a3a;
             color: white;
         }
         #clearButton:hover {
-            transform: scale(1.05); /* Scale up on hover */
+            transform: scale(1.05);
         }
         .popup {
             position: fixed;
@@ -83,7 +81,7 @@
             }
             #youtubeLink {
                 width: 400px;
-                margin-right: 15px; /* Add more space between input and buttons */
+                margin-right: 15px;
                 margin-bottom: 0;
             }
             #submitButton, #clearButton {
@@ -118,10 +116,10 @@
 
         document.getElementById('clearButton').addEventListener('click', () => {
             const youtubeLink = document.getElementById('youtubeLink');
-            youtubeLink.value = ''; // Clear the input field
+            youtubeLink.value = '';
             const popupFrame = document.getElementById('popup-frame');
-            popupFrame.src = ''; // Clear the iframe
-            document.getElementById('popup').style.display = 'none'; // Hide the popup
+            popupFrame.src = '';
+            document.getElementById('popup').style.display = 'none';
         });
 
         document.getElementById('popup').addEventListener('click', () => {
