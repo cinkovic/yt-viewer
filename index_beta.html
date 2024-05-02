@@ -10,7 +10,7 @@
             color: white;
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 40px 20px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -18,7 +18,7 @@
         }
         #inputForm {
             display: flex;
-            flex-direction: row; /* Changed to row */
+            flex-direction: column;
             align-items: center;
             width: 90%;
             max-width: 700px;
@@ -26,11 +26,11 @@
         }
         #youtubeLink {
             padding: 12px 18px;
-            flex: 1; /* Added */
+            width: 100%;
+            margin-bottom: 12px;
             border-radius: 20px;
             border: none;
             font-size: 1.1em;
-            margin-right: 10px; /* Added margin between input and buttons */
         }
         #submitButton, #clearButton {
             padding: 12px 22px;
@@ -38,7 +38,7 @@
             border-radius: 20px;
             cursor: pointer;
             font-size: 1.1em;
-            margin: 7px; /* Added margin for buttons */
+            margin: 7px 0;
             transition: transform 0.2s ease;
         }
         #submitButton {
@@ -56,49 +56,6 @@
         #clearButton:hover {
             transform: scale(1.05);
         }
-        #bottomButton {
-            margin-top: auto;
-            margin-bottom: 20px;
-            background-color: #ffffff;
-            border: none;
-            cursor: pointer;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            font-size: 1.2em;
-            color: #000000;
-            transition: transform 0.2s ease;
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #bottomButton::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: -1;
-            transition: opacity 0.2s ease;
-            opacity: 0;
-        }
-        #bottomButton:hover::after {
-            opacity: 1;
-        }
-        #bottomButton:hover {
-            transform: scale(1.1);
-        }
-        #bottomButton:hover img {
-            filter: brightness(0) invert(1);
-        }
-
         .popup {
             position: fixed;
             top: 0;
@@ -116,14 +73,84 @@
             border-radius: 10px;
             border: none;
         }
-    
-        @media (max-width: 768px) {
-            .popup iframe {
-                width: 90%;
-                height: 90%;
+
+        @media (min-width: 768px) {
+            body {
+                font-size: 18px;
+            }
+            #inputForm {
+                flex-direction: row;
+                justify-content: center;
+            }
+            #youtubeLink {
+                width: 400px;
+                margin-right: 15px;
+                margin-bottom: 0;
+            }
+            #submitButton, #clearButton {
+                margin-top: 0;
+                margin-left: 7px;
             }
         }
-
+        #history {
+            list-style: none;
+            width: 90%;
+            max-width: 700px;
+            padding: 0;
+            margin: 20px 0;
+        }
+        #history li {
+            padding: 8px;
+            margin: 7px 0;
+            background-color: #2a2a2a;
+            border-radius: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #history li:hover {
+            background-color: #1a1a1a;
+        }
+        .play-icon, .delete-icon {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            border-radius: 50%;
+            margin-left: 8px;
+            flex-shrink: 0; /* Ensure icons maintain fixed size */
+        }
+        .play-icon {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19" fill="black"/></svg>');
+            background-size: 65%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .delete-icon {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19" stroke="black" stroke-width="2"/><line x1="19" y1="5" x2="5" y2="19" stroke="black" stroke-width="2"/></svg>');
+            background-size: 70%;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+        .video-title {
+            font-size: 1em;
+            font-weight: normal;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            flex-grow: 1;
+            margin-left: 10px;
+        }
+        .thumbnail {
+            flex-shrink: 0;
+            width: 100px;
+            height: auto;
+            border-radius: 8px;
+            margin-right: 10px;
+        }
     </style>
 </head>
 <body>
@@ -133,37 +160,93 @@
         <button id="clearButton">Clear</button>
     </div>
     <ul id="history"></ul>
-    <button id="bottomButton" onclick="navigateToBeta()"><img src="unlock_icon.png" alt="Unlock"></button>
     <div class="popup" id="popup">
         <iframe id="popup-frame" src="" frameborder="0" allowfullscreen=""></iframe>
     </div>
 
     <script>
-        document.getElementById('submitButton').addEventListener('click', () => {
+        const historyList = document.getElementById('history');
+
+        async function getVideoTitle(videoId) {
+            const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+            const response = await fetch(url);
+            const data = await response.json();
+            return data.title;
+        }
+
+        function getThumbnailUrl(videoId) {
+            return `https://img.youtube.com/vi/${videoId}/default.jpg`;
+        }
+
+        async function saveLink(videoId) {
+            let videoLinks = JSON.parse(localStorage.getItem('videoLinks')) || [];
+            videoLinks.unshift(videoId);
+            localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
+            await renderHistory();
+        }
+
+        function deleteLink(index) {
+            let videoLinks = JSON.parse(localStorage.getItem('videoLinks')) || [];
+            videoLinks.splice(index, 1);
+            localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
+            renderHistory();
+        }
+
+        async function renderHistory() {
+            let videoLinks = JSON.parse(localStorage.getItem('videoLinks')) || [];
+            historyList.innerHTML = '';
+            for (let index = 0; index < videoLinks.length; index++) {
+                const videoId = videoLinks[index];
+                const title = await getVideoTitle(videoId);
+                const thumbnailUrl = getThumbnailUrl(videoId);
+                const li = document.createElement('li');
+                li.innerHTML = `<img src="${thumbnailUrl}" alt="Thumbnail" class="thumbnail"> <span class="video-title">${title}</span> <div class="play-icon"></div> <div class="delete-icon"></div>`;
+                li.dataset.index = index;
+                historyList.appendChild(li);
+            }
+        }
+
+        document.getElementById('submitButton').addEventListener('click', async () => {
             const youtubeLink = document.getElementById('youtubeLink').value;
-            const videoId = youtubeLink.match(/(?:youtube\.com\/(?:[^/]+\/[^/]+\/|(?:v|e(?:mbed)?|u\/\w+\/|shorts\/|watch\?(?:.*&)?v=))|youtu\.be\/)([^#&?]*).*/i)?.[1];
+            const videoId = youtubeLink.match(/(?:youtube\.com\/(?:[^\/]+\/[^\/]+\/|(?:v|e(?:mbed)?|u\/\w+\/|shorts\/|watch\?(?:.*&)?v=))|youtu\.be\/)([^#&?]*).*/i)?.[1];
             
             if (videoId) {
                 const popupFrame = document.getElementById('popup-frame');
                 popupFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
                 document.getElementById('popup').style.display = 'flex';
+                await saveLink(videoId);
             } else {
                 alert('Invalid YouTube link');
             }
         });
-    
+
         document.getElementById('clearButton').addEventListener('click', () => {
             const youtubeLink = document.getElementById('youtubeLink');
-            youtubeLink.value = ''; // Clear the input field
+            youtubeLink.value = '';
             const popupFrame = document.getElementById('popup-frame');
-            popupFrame.src = ''; // Clear the iframe
-            document.getElementById('popup').style.display = 'none'; // Hide the popup
+            popupFrame.src = '';
+            document.getElementById('popup').style.display = 'none';
         });
-    
+
         document.getElementById('popup').addEventListener('click', () => {
             document.getElementById('popup').style.display = 'none';
             document.getElementById('popup-frame').src = '';
         });
+
+        historyList.addEventListener('click', (event) => {
+            const li = event.target.closest('li');
+            const index = parseInt(li.dataset.index, 10);
+            if (event.target.classList.contains('play-icon')) {
+                const videoId = JSON.parse(localStorage.getItem('videoLinks'))[index];
+                const popupFrame = document.getElementById('popup-frame');
+                popupFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                document.getElementById('popup').style.display = 'flex';
+            } else if (event.target.classList.contains('delete-icon')) {
+                deleteLink(index);
+            }
+        });
+
+        renderHistory();
     </script>
 </body>
 </html>
