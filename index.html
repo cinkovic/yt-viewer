@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>YouTube Video Popup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
             background-color: #0f0f0f;
@@ -13,17 +14,22 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            font-size: 16px; /* Base font size */
         }
         #inputForm {
             display: flex;
+            flex-direction: column; /* Keep centered on mobile */
+            align-items: center; /* Center elements */
+            width: 100%;
             margin-bottom: 20px;
         }
         #youtubeLink {
             padding: 10px;
-            width: 400px;
-            margin-right: 10px;
+            width: 80%; /* Adjust width based on viewport */
+            margin-bottom: 10px; /* Add spacing for vertical stacking */
             border-radius: 4px;
             border: none;
+            font-size: 1em; /* Relative font size */
         }
         #submitButton {
             padding: 10px 20px;
@@ -32,6 +38,7 @@
             cursor: pointer;
             background-color: #3a3a3a;
             color: white;
+            font-size: 1em; /* Relative font size */
         }
         .popup {
             position: fixed;
@@ -49,6 +56,22 @@
             height: 80%;
             border-radius: 10px;
             border: none;
+        }
+
+        /* Desktop adjustments */
+        @media (min-width: 768px) {
+            body {
+                font-size: 18px; /* Increase base font size */
+            }
+            #inputForm {
+                flex-direction: row; /* Arrange elements in a row */
+                justify-content: center; /* Center elements horizontally */
+            }
+            #youtubeLink {
+                width: 400px; /* Fixed width for desktop */
+                margin-right: 10px; /* Add spacing between input and button */
+                margin-bottom: 0;
+            }
         }
     </style>
 </head>
