@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>YouTube Video Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background-color: #0f0f0f;
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 16px;
+        }
+        #inputForm {
+            display: flex;
+            flex-direction: row; /* Changed to row */
+            align-items: center;
+            width: 90%;
+            max-width: 700px;
+            margin-bottom: 20px;
+        }
+        #youtubeLink {
+            padding: 12px 18px;
+            flex: 1; /* Added */
+            border-radius: 20px;
+            border: none;
+            font-size: 1.1em;
+            margin-right: 10px; /* Added margin between input and buttons */
+        }
+        #submitButton, #clearButton {
+            padding: 12px 22px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 7px; /* Added margin for buttons */
+            transition: transform 0.2s ease;
+        }
+        #submitButton {
+            background-color: #f70606;
+            color: white;
+            font-weight: bold;
+        }
+        #submitButton:hover {
+            transform: scale(1.09);
+        }
+        #clearButton {
+            background-color: #3a3a3a;
+            color: white;
+        }
+        #clearButton:hover {
+            transform: scale(1.05);
+        }
+        #bottomButton {
+            margin-top: auto;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            border: none;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.2em;
+            color: #000000;
+            transition: transform 0.2s ease;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #bottomButton::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+            transition: opacity 0.2s ease;
+            opacity: 0;
+        }
+        #bottomButton:hover::after {
+            opacity: 1;
+        }
+        #bottomButton:hover {
+            transform: scale(1.1);
+        }
+        #bottomButton:hover img {
+            filter: brightness(0) invert(1);
+        }
+
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 1);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .popup iframe {
+            width: 80%;
+            height: 80%;
+            border-radius: 10px;
+            border: none;
+        }
+    
+        @media (max-width: 768px) {
+            .popup iframe {
+                width: 90%;
+                height: 90%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div id="inputForm">
+        <input type="text" id="youtubeLink" placeholder="Enter YouTube video link..">
+        <button id="submitButton">Watch</button>
+        <button id="clearButton">Clear</button>
+    </div>
+    <ul id="history"></ul>
+    <button id="bottomButton" onclick="navigateToBeta()"><img src="unlock_icon.png" alt="Unlock"></button>
+    <div class="popup" id="popup">
+        <iframe id="popup-frame" src="" frameborder="0" allowfullscreen=""></iframe>
+    </div>
+
+    <script>
+        document.getElementById('submitButton').addEventListener('click', () => {
+            const youtubeLink = document.getElementById('youtubeLink').value;
+            const videoId = youtubeLink.match(/(?:youtube\.com\/(?:[^/]+\/[^/]+\/|(?:v|e(?:mbed)?|u\/\w+\/|shorts\/|watch\?(?:.*&)?v=))|youtu\.be\/)([^#&?]*).*/i)?.[1];
+            
+            if (videoId) {
+                const popupFrame = document.getElementById('popup-frame');
+                popupFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                document.getElementById('popup').style.display = 'flex';
+            } else {
+                alert('Invalid YouTube link');
+            }
+        });
+    
+        document.getElementById('clearButton').addEventListener('click', () => {
+            const youtubeLink = document.getElementById('youtubeLink');
+            youtubeLink.value = ''; // Clear the input field
+            const popupFrame = document.getElementById('popup-frame');
+            popupFrame.src = ''; // Clear the iframe
+            document.getElementById('popup').style.display = 'none'; // Hide the popup
+        });
+    
+        document.getElementById('popup').addEventListener('click', () => {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('popup-frame').src = '';
+        });
+    </script>
+</body>
+</html>
