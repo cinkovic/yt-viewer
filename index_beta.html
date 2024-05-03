@@ -27,7 +27,7 @@
         #youtubeLink {
             padding: 12px 18px;
             width: 100%;
-            flex: 1; /* Added */
+            flex: 1;
             margin-bottom: 12px;
             border-radius: 20px;
             border: none;
@@ -74,7 +74,6 @@
             border-radius: 10px;
             border: none;
         }
-
         @media (min-width: 768px) {
             body {
                 font-size: 18px;
@@ -105,7 +104,6 @@
             margin: 7px 0;
             background-color: #2a2a2a;
             border-radius: 20px;
-            cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -122,7 +120,8 @@
             background-color: white;
             border-radius: 50%;
             margin-left: 8px;
-            flex-shrink: 0; /* Ensure icons maintain fixed size */
+            flex-shrink: 0;
+            cursor: pointer;
         }
         .play-icon {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19" fill="black"/></svg>');
@@ -166,10 +165,11 @@
     </div>
 
     <script>
+        const baseUrl = 'https://www.youtube.com';
         const historyList = document.getElementById('history');
 
         async function getVideoTitle(videoId) {
-            const url = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
+            const url = `${baseUrl}/oembed?url=${baseUrl}/watch?v=${videoId}&format=json`;
             const response = await fetch(url);
             const data = await response.json();
             return data.title;
@@ -213,7 +213,7 @@
             
             if (videoId) {
                 const popupFrame = document.getElementById('popup-frame');
-                popupFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                popupFrame.src = `${baseUrl}/embed/${videoId}?autoplay=1`;
                 document.getElementById('popup').style.display = 'flex';
                 await saveLink(videoId);
             } else {
@@ -240,7 +240,7 @@
             if (event.target.classList.contains('play-icon')) {
                 const videoId = JSON.parse(localStorage.getItem('videoLinks'))[index];
                 const popupFrame = document.getElementById('popup-frame');
-                popupFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                popupFrame.src = `${baseUrl}/embed/${videoId}?autoplay=1`;
                 document.getElementById('popup').style.display = 'flex';
             } else if (event.target.classList.contains('delete-icon')) {
                 deleteLink(index);
