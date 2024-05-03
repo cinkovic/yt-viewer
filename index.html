@@ -79,7 +79,7 @@
             position: fixed;
             bottom: 20px;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(0%);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -103,8 +103,19 @@
         #bottomButton:hover {
             transform: scale(1.1);
         }
-        #bottomButton:hover img {
-            filter: brightness(0) invert(1);
+        #bottomButton img.lock-closed {
+            display: block;
+        }
+        #bottomButton img.lock-open {
+            display: none;
+            filter: grayscale(100%);
+        }
+        #bottomButton:hover img.lock-open {
+            display: block;
+            filter: none;
+        }
+        #bottomButton:hover img.lock-closed {
+            display: none;
         }
 
         .popup {
@@ -141,7 +152,10 @@
         <button id="clearButton">Clear</button>
     </div>
     <ul id="history"></ul>
-    <a href="index_beta.html" id="bottomButton"><img src="https://img.icons8.com/material-outlined/24/000000/unlock--v1.png" alt="Unlock"></a>
+    <a href="index_beta.html" id="bottomButton">
+        <img src="https://img.icons8.com/material-outlined/24/000000/lock--v1.png" alt="Lock Closed" class="lock-closed">
+        <img src="https://img.icons8.com/material-outlined/24/ffffff/unlock--v1.png" alt="Unlock" class="lock-open">
+    </a>
     <div class="popup" id="popup">
         <iframe id="popup-frame" src="" frameborder="0" allowfullscreen=""></iframe>
     </div>
