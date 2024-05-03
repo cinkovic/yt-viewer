@@ -221,8 +221,19 @@
             videoLinks.splice(index, 1);
             setCookie('videoLinks', JSON.stringify(videoLinks), 30);
             localStorage.setItem('videoLinks', JSON.stringify(videoLinks)); // Synchronize with localStorage
-            renderHistory();
-        }
+        
+            // Manually remove the item from the DOM
+            const listItem = historyList.querySelector(`li[data-index='${index}']`);
+            if (listItem) {
+                listItem.remove();
+            }
+        
+            // Update the data-index attributes for the remaining items
+            const remainingItems = historyList.querySelectorAll('li');
+            remainingItems.forEach((li, newIndex) => {
+                li.dataset.index = newIndex;
+            });
+        }        
 
         async function renderSkeletons(count) {
             historyList.innerHTML = '';
