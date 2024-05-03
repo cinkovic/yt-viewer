@@ -5,11 +5,9 @@
     <title>YouTube Video Viewer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- Prevents a preview image -->
     <meta property="og:image" content="">
     <meta property="og:title" content="YouTube Video Viewer">
     <meta property="og:description" content="A simple YouTube video viewer">
-    <!-- Optionally prevent previews altogether -->
     <meta name="robots" content="noindex,nofollow">
     
     <style>
@@ -176,10 +174,10 @@
     
         document.getElementById('clearButton').addEventListener('click', () => {
             const youtubeLink = document.getElementById('youtubeLink');
-            youtubeLink.value = ''; // Clear the input field
+            youtubeLink.value = '';
             const popupFrame = document.getElementById('popup-frame');
-            popupFrame.src = ''; // Clear the iframe
-            document.getElementById('popup').style.display = 'none'; // Hide the popup
+            popupFrame.src = '';
+            document.getElementById('popup').style.display = 'none';
         });
     
         document.getElementById('popup').addEventListener('click', () => {
