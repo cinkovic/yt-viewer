@@ -299,9 +299,10 @@
                 popupFrame.src = `${baseUrl}/embed/${videoId}?autoplay=1`;
                 document.getElementById('popup').style.display = 'flex';
             } else if (event.target.classList.contains('delete-icon')) {
+                event.preventDefault(); // Prevent default scrolling behavior
                 deleteLink(index);
             }
-        });
+        });        
 
         renderHistory();
     </script>    
