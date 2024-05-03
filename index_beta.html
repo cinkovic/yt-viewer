@@ -151,25 +151,6 @@
             border-radius: 8px;
             margin-right: 10px;
         }
-        /* Skeleton screen styling */
-        .skeleton {
-            background-color: #2a2a2a;
-            height: 80px; /* Adjust this based on your list item height */
-            border-radius: 20px;
-            margin: 7px 0;
-            animation: shimmer 1.5s infinite linear;
-        }
-        @keyframes shimmer {
-            0% {
-                background-color: #2a2a2a;
-            }
-            50% {
-                background-color: #1a1a1a;
-            }
-            100% {
-                background-color: #2a2a2a;
-            }
-        }
     </style>
 </head>
 <body>
@@ -219,17 +200,27 @@
             return `https://img.youtube.com/vi/${videoId}/default.jpg`;
         }
 
+        // Combine localStorage and cookie data, prioritizing the latest items
+        function getCombinedVideoLinks() {
+            const localStorageLinks = JSON.parse(localStorage.getItem('videoLinks')) || [];
+            const cookieLinks = JSON.parse(getCookie('videoLinks') || '[]');
+            const seen = new Set(localStorageLinks);
+            return [...cookieLinks.filter(link => !seen.has(link)), ...localStorageLinks];
+        }
+
         async function saveLink(videoId) {
-            let videoLinks = JSON.parse(getCookie('videoLinks') || '[]');
-            videoLinks.unshift(videoId);
+            let videoLinks = getCombinedVideoLinks();
+            videoLinks = [videoId, ...videoLinks.filter(id => id !== videoId)];
             setCookie('videoLinks', JSON.stringify(videoLinks), 30); // Store for 30 days
+            localStorage.setItem('videoLinks', JSON.stringify(videoLinks)); // Synchronize with localStorage
             await renderHistory();
         }
 
         function deleteLink(index) {
-            let videoLinks = JSON.parse(getCookie('videoLinks') || '[]');
+            let videoLinks = getCombinedVideoLinks();
             videoLinks.splice(index, 1);
             setCookie('videoLinks', JSON.stringify(videoLinks), 30);
+            localStorage.setItem('videoLinks', JSON.stringify(videoLinks)); // Synchronize with localStorage
             renderHistory();
         }
 
@@ -243,7 +234,7 @@
         }
 
         async function renderHistory() {
-            let videoLinks = JSON.parse(getCookie('videoLinks') || '[]');
+            let videoLinks = getCombinedVideoLinks();
             renderSkeletons(videoLinks.length); // Show skeletons
 
             for (let index = 0; index < videoLinks.length; index++) {
@@ -292,7 +283,7 @@
             const li = event.target.closest('li');
             const index = parseInt(li.dataset.index, 10);
             if (event.target.classList.contains('play-icon')) {
-                const videoId = JSON.parse(getCookie('videoLinks'))[index];
+                const videoId = getCombinedVideoLinks()[index];
                 const popupFrame = document.getElementById('popup-frame');
                 popupFrame.src = `${baseUrl}/embed/${videoId}?autoplay=1`;
                 document.getElementById('popup').style.display = 'flex';
