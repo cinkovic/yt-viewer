@@ -198,8 +198,14 @@
         }
 
         function getVideoLinks() {
+            // Combine data from localStorage and cookies, prioritizing cookies
+            const localStorageLinks = JSON.parse(localStorage.getItem('videoLinks')) || [];
             const cookieLinks = JSON.parse(getCookie('videoLinks') || '[]');
-            return trimToFitMaxSize(cookieLinks);
+            
+            // Use a Set to avoid duplicates
+            const uniqueLinks = new Set([...cookieLinks, ...localStorageLinks]);
+
+            return trimToFitMaxSize([...uniqueLinks]);
         }
 
         async function saveLink(videoId) {
@@ -207,6 +213,7 @@
             videoLinks = [videoId, ...videoLinks.filter(id => id !== videoId)];
             videoLinks = trimToFitMaxSize(videoLinks); // Ensure the links fit within the max size
             setCookie('videoLinks', JSON.stringify(videoLinks), 30); // Store for 30 days
+            localStorage.setItem('videoLinks', JSON.stringify(videoLinks)); // Temporary support for early adopters
             await renderHistory();
         }
 
@@ -215,6 +222,7 @@
             videoLinks.splice(index, 1);
             videoLinks = trimToFitMaxSize(videoLinks);
             setCookie('videoLinks', JSON.stringify(videoLinks), 30);
+            localStorage.setItem('videoLinks', JSON.stringify(videoLinks)); // Temporary support for early adopters
             renderHistory(); // Re-render the list
         }
 
@@ -291,6 +299,7 @@
             let videoLinks = getVideoLinks();
             videoLinks = trimToFitMaxSize(videoLinks);
             setCookie('videoLinks', JSON.stringify(videoLinks), 30);
+            localStorage.setItem('videoLinks', JSON.stringify(videoLinks)); // Temporary support for early adopters
         }
 
         renderHistory(); // Initial render
