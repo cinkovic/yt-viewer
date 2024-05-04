@@ -143,6 +143,11 @@
                 margin-top: 0;
                 margin-left: 7px;
             }
+        @media (max-height: 300px) {
+            #bottomButton {
+                display: none;
+               }
+            }
         }
     </style>
 </head>
@@ -189,7 +194,18 @@
             document.getElementById('popup').style.display = 'none';
             document.getElementById('popup-frame').src = '';
         });
+
+        function toggleBottomButtonVisibility() {
+            const bottomButton = document.getElementById('bottomButton');
+            if (window.innerHeight <= 500) {
+                bottomButton.style.display = 'none';
+            } else {
+                bottomButton.style.display = 'flex'; // or 'block', depending on your preference
+            }
+        }
+        
+        window.addEventListener('resize', toggleBottomButtonVisibility);
+        window.addEventListener('load', toggleBottomButtonVisibility);
     </script>
 </body>
 </html>
-
