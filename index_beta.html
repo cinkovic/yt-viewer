@@ -1,5 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>YouTube Video Viewer</title>
@@ -32,6 +30,7 @@
             border-radius: 20px;
             border: none;
             font-size: 1.1em;
+            box-sizing: border-box; /* Ensures consistent padding */
         }
         #submitButton, #clearButton {
             padding: 12px 22px;
@@ -41,6 +40,10 @@
             font-size: 1.1em;
             margin: 7px;
             transition: transform 0.2s ease;
+            height: 48px; /* Consistent height */
+            display: flex; /* Ensures proper alignment of text */
+            justify-content: center; /* Center text horizontally */
+            align-items: center; /* Center text vertically */
         }
         #submitButton {
             background-color: #f70606;
@@ -57,23 +60,8 @@
         #clearButton:hover {
             transform: scale(1.05);
         }
-        .popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 1);
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-        .popup iframe {
-            width: 80%;
-            height: 80%;
-            border-radius: 10px;
-            border: none;
-        }
+
+        /* Ensure alignment across desktop */
         @media (min-width: 768px) {
             body {
                 font-size: 18px;
@@ -81,6 +69,7 @@
             #inputForm {
                 flex-direction: row;
                 justify-content: center;
+                align-items: center; /* Center align elements vertically */
             }
             #youtubeLink {
                 width: 400px;
@@ -92,6 +81,8 @@
                 margin-left: 7px;
             }
         }
+
+        /* Styling for History items and icons */
         #history {
             list-style: none;
             width: 90%;
@@ -165,9 +156,9 @@
     </div>
 
     <script>
-        const MAX_COOKIE_SIZE = 3920; // 98% of 4 KB
+        const MAX_COOKIE_SIZE = 3920;
         const MAX_ENTRIES = 250;
-        const CHECK_INTERVAL_MS = 3600000; // 1 hour
+        const CHECK_INTERVAL_MS = 3600000;
         const baseUrl = 'https://www.youtube.com';
         const historyList = document.getElementById('history');
 
@@ -190,19 +181,17 @@
         }
 
         function trimToFitMaxSize(videoLinks) {
-            videoLinks = videoLinks.slice(0, MAX_ENTRIES); // Limit to 250 entries
+            videoLinks = videoLinks.slice(0, MAX_ENTRIES);
             while (encodeURIComponent(JSON.stringify(videoLinks)).length > MAX_COOKIE_SIZE) {
-                videoLinks.pop(); // Remove the oldest (last) entry
+                videoLinks.pop();
             }
             return videoLinks;
         }
 
         function getVideoLinks() {
-            // Combine data from localStorage and cookies, prioritizing cookies
             const localStorageLinks = JSON.parse(localStorage.getItem('videoLinks')) || [];
             const cookieLinks = JSON.parse(getCookie('videoLinks') || '[]');
             
-            // Use a Set to avoid duplicates
             const uniqueLinks = new Set([...cookieLinks, ...localStorageLinks]);
 
             return trimToFitMaxSize([...uniqueLinks]);
@@ -211,43 +200,60 @@
         async function saveLink(videoId) {
             let videoLinks = getVideoLinks();
             videoLinks = [videoId, ...videoLinks.filter(id => id !== videoId)];
-            videoLinks = trimToFitMaxSize(videoLinks); // Ensure the links fit within the max size
-            setCookie('videoLinks', JSON.stringify(videoLinks), 30); // Store for 30 days
-            localStorage.setItem('videoLinks', JSON.stringify(videoLinks)); // Temporary support for early adopters
-            await renderHistory();
+            videoLinks = trimToFitMaxSize(videoLinks);
+            try {
+                setCookie('videoLinks', JSON.stringify(videoLinks), 30);
+                localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
+                await renderHistory();
+            } catch (error) {
+                console.error('Error saving link:', error);
+            }
         }
 
-        function deleteLink(index) {
+        async function deleteLink(index) {
             let videoLinks = getVideoLinks();
             videoLinks.splice(index, 1);
             videoLinks = trimToFitMaxSize(videoLinks);
-            setCookie('videoLinks', JSON.stringify(videoLinks), 30);
-            localStorage.setItem('videoLinks', JSON.stringify(videoLinks)); // Temporary support for early adopters
-            renderHistory(); // Re-render the list
+
+            try {
+                setCookie('videoLinks', JSON.stringify(videoLinks), 30);
+                localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
+                await renderHistory();
+            } catch (error) {
+                console.error('Error deleting link:', error);
+            }
         }
 
         async function renderHistory() {
             const videoLinks = getVideoLinks();
-            historyList.innerHTML = ''; // Clear history before rendering
-
+            const listItems = [];
             for (let index = 0; index < videoLinks.length; index++) {
                 const videoId = videoLinks[index];
                 const title = await getVideoTitle(videoId);
                 const thumbnailUrl = getThumbnailUrl(videoId);
-
                 const li = document.createElement('li');
                 li.innerHTML = `<img src="${thumbnailUrl}" alt="Thumbnail" class="thumbnail"> <span class="video-title">${title}</span> <div class="play-icon"></div> <div class="delete-icon"></div>`;
                 li.dataset.index = index;
-
-                historyList.appendChild(li);
+                listItems.push(li);
             }
+
+            historyList.innerHTML = '';
+            listItems.forEach(item => historyList.appendChild(item));
         }
 
         async function getVideoTitle(videoId) {
             const url = `${baseUrl}/oembed?url=${baseUrl}/watch?v=${videoId}&format=json`;
-            const response = await fetch(url);
-            const data = await response.json();
-            return data.title;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Error fetching title: ${response.statusText}`);
+                }
+                const data = await response.json();
+                return data.title;
+            } catch (error) {
+                console.error(error);
+                return 'Error fetching title';
+            }
         }
 
         function getThumbnailUrl(videoId) {
@@ -290,7 +296,7 @@
                 popupFrame.src = `${baseUrl}/embed/${videoId}?autoplay=1`;
                 document.getElementById('popup').style.display = 'flex';
             } else if (event.target.classList.contains('delete-icon')) {
-                event.preventDefault(); // Prevent default scrolling behavior
+                event.preventDefault();
                 deleteLink(index);
             }
         });
@@ -299,12 +305,14 @@
             let videoLinks = getVideoLinks();
             videoLinks = trimToFitMaxSize(videoLinks);
             setCookie('videoLinks', JSON.stringify(videoLinks), 30);
-            localStorage.setItem('videoLinks', JSON.stringify(videoLinks)); // Temporary support for early adopters
+            localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
         }
 
-        renderHistory(); // Initial render
-        trimPeriodically(); // Trim the data on first render
-        setInterval(trimPeriodically, CHECK_INTERVAL_MS); // Periodic trimming
+        (async () => {
+            await renderHistory();
+        })();
+        trimPeriodically();
+        setInterval(trimPeriodically, CHECK_INTERVAL_MS);
     </script>    
 </body>
 </html>
