@@ -206,7 +206,7 @@
             return videoLinks;
         }
 
-        function getVideoLinks() {
+        async function getVideoLinks() {
             const localStorageLinks = JSON.parse(localStorage.getItem('videoLinks')) || [];
             const cookieLinks = JSON.parse(getCookie('videoLinks') || '[]');
             
@@ -216,7 +216,7 @@
         }
 
         async function saveLink(videoId) {
-            let videoLinks = getVideoLinks();
+            let videoLinks = await getVideoLinks();
             videoLinks = [videoId, ...videoLinks.filter(id => id !== videoId)];
             videoLinks = trimToFitMaxSize(videoLinks);
             try {
@@ -253,7 +253,7 @@
         }
 
         async function deleteLink(index) {
-            let videoLinks = getVideoLinks();
+            let videoLinks = await getVideoLinks();
             const deletedId = videoLinks[index];
             videoLinks.splice(index, 1);
 
@@ -272,7 +272,7 @@
         }
 
         async function renderHistory() {
-            const videoLinks = getVideoLinks();
+            const videoLinks = await getVideoLinks();
             const listItems = [];
             for (let index = 0; index < videoLinks.length; index++) {
                 const videoId = videoLinks[index];
@@ -348,8 +348,8 @@
             }
         });
 
-        function trimPeriodically() {
-            let videoLinks = getVideoLinks();
+        async function trimPeriodically() {
+            let videoLinks = await getVideoLinks();
             videoLinks = trimToFitMaxSize(videoLinks);
             setCookie('videoLinks', JSON.stringify(videoLinks), 30);
             localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
