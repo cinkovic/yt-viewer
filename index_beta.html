@@ -32,7 +32,7 @@
             border-radius: 20px;
             border: none;
             font-size: 1.1em;
-            box-sizing: border-box; /* Ensures consistent padding */
+            box-sizing: border-box;
         }
         #submitButton, #clearButton {
             padding: 12px 22px;
@@ -42,10 +42,10 @@
             font-size: 1.1em;
             margin: 7px;
             transition: transform 0.2s ease;
-            height: 48px; /* Consistent height */
-            display: flex; /* Ensures proper alignment of text */
-            justify-content: center; /* Center text horizontally */
-            align-items: center; /* Center text vertically */
+            height: 48px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         #submitButton {
             background-color: #f70606;
@@ -63,7 +63,6 @@
             transform: scale(1.05);
         }
 
-        /* Ensure alignment across desktop */
         @media (min-width: 768px) {
             body {
                 font-size: 18px;
@@ -71,7 +70,7 @@
             #inputForm {
                 flex-direction: row;
                 justify-content: center;
-                align-items: center; /* Center align elements vertically */
+                align-items: center;
             }
             #youtubeLink {
                 width: 400px;
@@ -84,7 +83,6 @@
             }
         }
 
-        /* Styling for History items and icons */
         #history {
             list-style: none;
             width: 90%;
@@ -239,7 +237,7 @@
         }
 
         function trimCookie(videoLinks) {
-            const MAX_COOKIE_SIZE = 3920;
+            const MAX_COOKIE_SIZE = 3920; // less 2% contingency..
             videoLinks = videoLinks.slice(0, MAX_COOKIE_SIZE);
             while (encodeURIComponent(JSON.stringify(videoLinks)).length > MAX_COOKIE_SIZE) {
                 videoLinks.pop();
