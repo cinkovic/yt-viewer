@@ -333,8 +333,11 @@
         });
 
         document.getElementById('clearButton').addEventListener('click', () => {
-            // Clear the input field by setting its value to an empty string
-            document.getElementById('youtubeLink').value = '';
+            const youtubeLink = document.getElementById('youtubeLink');
+            youtubeLink.value = ''; // Clear the input field
+            const popupFrame = document.getElementById('popup-frame');
+            popupFrame.src = ''; // Clear the iframe
+            document.getElementById('popup').style.display = 'none'; // Hide the popup
         });
 
         // Close the popup when clicking outside the iframe
