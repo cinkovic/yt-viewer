@@ -332,6 +332,11 @@
             }
         });
 
+        document.getElementById('clearButton').addEventListener('click', () => {
+            // Clear the input field by setting its value to an empty string
+            document.getElementById('youtubeLink').value = '';
+        });
+
         // Close the popup when clicking outside the iframe
         document.getElementById('popup').addEventListener('click', (event) => {
             if (event.target === event.currentTarget) {
