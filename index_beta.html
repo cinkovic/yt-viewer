@@ -1,17 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>YT Viewer</title>
-    <!-- Meta tags for mobile responsiveness and SEO -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Personal video player with better user experience.">
     <meta name="keywords" content="personal player, online player, player, presentation player, meetings player, professional presentation, business presentation player, business meeting player">
-    
-    <!-- Inline CSS styles -->
     <style>
-        /* General body styles */
         body {
             background-color: #0f0f0f;
             color: white;
@@ -23,18 +16,14 @@
             align-items: center;
             font-size: 16px;
         }
-
-        /* Form styles for YouTube URL input */
         #inputForm {
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%;
+            width: 90%;
             max-width: 700px;
             margin-bottom: 20px;
         }
-        
-        /* Input field styles */
         #youtubeLink {
             padding: 12px 18px;
             width: 100%;
@@ -45,72 +34,55 @@
             font-size: 1.1em;
             box-sizing: border-box;
         }
-
-        /* Button styles for submission and clearing */
         #submitButton, #clearButton {
             padding: 12px 22px;
             border: none;
             border-radius: 20px;
             cursor: pointer;
             font-size: 1.1em;
-            margin-left: 7px;
+            margin: 7px;
             transition: transform 0.2s ease;
             height: 48px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        
-        #submitButton {
-            margin-right: 7px;
-        }
-
-        /* Submit button specific styles */
         #submitButton {
             background-color: #f70606;
             color: white;
             font-weight: bold;
         }
-        
         #submitButton:hover {
             transform: scale(1.09);
         }
-
-        /* Clear button specific styles */
         #clearButton {
             background-color: #3a3a3a;
             color: white;
         }
-        
         #clearButton:hover {
             transform: scale(1.05);
         }
 
-        /* Responsive styles for larger screens */
         @media (min-width: 768px) {
             body {
                 font-size: 18px;
             }
-
             #inputForm {
                 flex-direction: row;
                 justify-content: center;
                 align-items: center;
             }
-
             #youtubeLink {
                 width: 400px;
                 margin-right: 15px;
                 margin-bottom: 0;
             }
-
             #submitButton, #clearButton {
                 margin-top: 0;
                 margin-left: 7px;
             }
         }
 
-        /* List styles for video history */
         #history {
             list-style: none;
             width: 90%;
@@ -118,8 +90,6 @@
             padding: 0;
             margin: 20px 0;
         }
-
-        /* Styles for individual list items in video history */
         #history li {
             padding: 8px;
             margin: 7px 0;
@@ -129,12 +99,9 @@
             justify-content: space-between;
             align-items: center;
         }
-
         #history li:hover {
             background-color: #1a1a1a;
         }
-
-        /* Styles for popup that displays the video */
         .popup {
             position: fixed;
             top: 0;
@@ -146,15 +113,12 @@
             justify-content: center;
             align-items: center;
         }
-
         .popup iframe {
             width: 80%;
             height: 80%;
             border-radius: 10px;
             border: none;
         }
-
-        /* Play icon styles */
         .play-icon, .delete-icon {
             width: 30px;
             height: 30px;
@@ -167,24 +131,18 @@
             flex-shrink: 0;
             cursor: pointer;
         }
-
-        /* Specific styles for play icon */
         .play-icon {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><polygon points="8,5 19,12 8,19" fill="black"/></svg>');
             background-size: 65%;
             background-repeat: no-repeat;
             background-position: center;
         }
-
-        /* Specific styles for delete icon */
         .delete-icon {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><line x1="5" y1="5" x2="19" y2="19" stroke="black" stroke-width="2"/><line x1="19" y1="5" x2="5" y2="19" stroke="black" stroke-width="2"/></svg>');
             background-size: 70%;
             background-repeat: no-repeat;
             background-position: center;
         }
-
-        /* Video title styles */
         .video-title {
             font-size: 1em;
             font-weight: normal;
@@ -194,8 +152,6 @@
             flex-grow: 1;
             margin-left: 10px;
         }
-
-        /* Styles for video thumbnails */
         .thumbnail {
             flex-shrink: 0;
             width: 100px;
@@ -203,8 +159,6 @@
             border-radius: 8px;
             margin-right: 10px;
         }
-
-        /* Loading skeleton styles */
         .skeleton {
             background: #333;
             border-radius: 8px;
@@ -213,7 +167,6 @@
             height: 40px;
             animation: loading 1.5s infinite;
         }
-
         @keyframes loading {
             0% {
                 background-position: -200px 0;
@@ -226,27 +179,20 @@
 </head>
 
 <body>
-    <!-- Form to input YouTube video link -->
     <div id="inputForm">
         <input type="text" id="youtubeLink" placeholder="Enter YouTube video link..">
         <button id="submitButton">Watch</button>
         <button id="clearButton">Clear</button>
     </div>
-    
-    <!-- List for displaying video history -->
     <ul id="history"></ul>
-
-    <!-- Popup for displaying the YouTube video -->
     <div class="popup" id="popup">
         <iframe id="popup-frame" src="" frameborder="0" allowfullscreen allow="autoplay"></iframe>
     </div>
 
-    <!-- JavaScript for interactivity and functionality -->
     <script>
         const baseUrl = 'https://www.youtube.com';
         const historyList = document.getElementById('history');
 
-        // Function to fetch video titles based on their IDs
         async function getVideoTitles(videoIds) {
             const titles = {};
             const requests = videoIds.map(async (id) => {
@@ -267,13 +213,11 @@
             return titles;
         }
 
-        // Function to extract video ID from the YouTube URL
         function extractVideoId(url) {
             const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/[^\/]+\/|(?:v|e(?:mbed)?|u\/\w+\/|shorts\/|watch\?(?:.*&)?v=))|youtu\.be\/)([^#&?]*).*/i);
             return match ? match[1] : null;
         }
 
-        // Function to set a cookie
         function setCookie(name, value, days) {
             const date = new Date();
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
@@ -281,7 +225,6 @@
             document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/`;
         }
 
-        // Function to retrieve a cookie
         function getCookie(name) {
             const nameEQ = name + "=";
             const decodedCookie = decodeURIComponent(document.cookie);
@@ -293,7 +236,6 @@
             return "";
         }
 
-        // Function to trim the cookie size to fit within browser limits
         function trimCookie(videoLinks) {
             const MAX_COOKIE_SIZE = 3920; // less 2% contingency..
             videoLinks = videoLinks.slice(0, MAX_COOKIE_SIZE);
@@ -303,7 +245,6 @@
             return videoLinks;
         }
 
-        // Function to get video links from both localStorage and cookies
         async function getVideoLinks() {
             let linksLocalStorage = JSON.parse(localStorage.getItem('videoLinks')) || [];
             let linksCookie = JSON.parse(getCookie('videoLinks') || '[]');
@@ -323,7 +264,6 @@
             return trimCookie(Array.from(uniqueLinks.values()));
         }
 
-        // Function to render video history list
         async function renderHistory() {
             const videoLinks = await getVideoLinks();
             const videoIdsWithoutMetadata = videoLinks.filter(v => !v.title).map(v => v.id);
@@ -342,7 +282,6 @@
             });
         }
 
-        // Function to save a video link to localStorage and cookies
         async function saveLink(videoId) {
             let videoLinks = await getVideoLinks();
 
@@ -368,7 +307,6 @@
             }
         }
 
-        // Function to delete a video link from localStorage and cookies
         async function deleteLink(videoId) {
             let videoLinks = await getVideoLinks();
             videoLinks = videoLinks.filter(video => video.id !== videoId);
@@ -382,7 +320,6 @@
             }
         }
 
-        // Event listener for the submit button click event
         document.getElementById('submitButton').addEventListener('click', async () => {
             const youtubeLink = document.getElementById('youtubeLink').value;
             const videoId = extractVideoId(youtubeLink);
@@ -395,7 +332,6 @@
             }
         });
 
-        // Event listener for the clear button click event
         document.getElementById('clearButton').addEventListener('click', () => {
             const youtubeLink = document.getElementById('youtubeLink');
             youtubeLink.value = ''; // Clear the input field
@@ -416,7 +352,6 @@
             }
         });
 
-        // Event listener for play and delete icons in the video history list
         historyList.addEventListener('click', async (event) => {
             const li = event.target.closest('li');
             if (!li) return;
@@ -429,11 +364,9 @@
             }
         });
 
-        // Initialize video history rendering on page load
         (async () => {
             await renderHistory();
         })();
     </script>
 </body>
-
 </html>
