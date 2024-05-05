@@ -246,30 +246,58 @@
         }
 
         async function getVideoLinks() {
-            const linksLocalStorage = JSON.parse(localStorage.getItem('videoLinks')) || [];
-            const linksCookie = JSON.parse(getCookie('videoLinks') || '[]');
-            const uniqueLinks = new Set([...linksLocalStorage, ...linksCookie]);
-            return trimCookie([...uniqueLinks]);
+            let linksLocalStorage = JSON.parse(localStorage.getItem('videoLinks')) || [];
+            let linksCookie = JSON.parse(getCookie('videoLinks') || '[]');
+
+            // Handle the old format (array of video IDs)
+            if (typeof linksCookie[0] === 'string') {
+                linksCookie = linksCookie.map(id => ({ id, title: '', thumbnail: '' }));
+            }
+            if (typeof linksLocalStorage[0] === 'string') {
+                linksLocalStorage = linksLocalStorage.map(id => ({ id, title: '', thumbnail: '' }));
+            }
+
+            // Combine and deduplicate video links
+            const uniqueLinks = new Map(linksLocalStorage.map(video => [video.id, video])
+                .concat(linksCookie.map(video => [video.id, video])));
+
+            return trimCookie(Array.from(uniqueLinks.values()));
         }
 
         async function renderHistory() {
             const videoLinks = await getVideoLinks();
-            const titles = await getVideoTitles(videoLinks);
+            const videoIdsWithoutMetadata = videoLinks.filter(v => !v.title).map(v => v.id);
+            const titles = await getVideoTitles(videoIdsWithoutMetadata);
+
             historyList.innerHTML = '';
-            videoLinks.forEach((id) => {
-                const title = titles[id] || 'Unknown Title';
-                const thumbnailUrl = `https://img.youtube.com/vi/${id}/default.jpg`;
+            videoLinks.forEach((video) => {
+                if (!video.title) {
+                    video.title = titles[video.id] || 'Unknown Title';
+                    video.thumbnail = `https://img.youtube.com/vi/${video.id}/default.jpg`;
+                }
                 const li = document.createElement('li');
-                li.innerHTML = `<img src="${thumbnailUrl}" alt="Thumbnail" class="thumbnail"> <span class="video-title">${title}</span> <div class="play-icon"></div> <div class="delete-icon"></div>`;
-                li.dataset.videoId = id;
+                li.innerHTML = `<img src="${video.thumbnail}" alt="Thumbnail" class="thumbnail"> <span class="video-title">${video.title}</span> <div class="play-icon"></div> <div class="delete-icon"></div>`;
+                li.dataset.videoId = video.id;
                 historyList.appendChild(li);
             });
         }
 
         async function saveLink(videoId) {
             let videoLinks = await getVideoLinks();
-            videoLinks = [videoId, ...videoLinks.filter(id => id !== videoId)];
+
+            // Check if the metadata is already available
+            let existingVideo = videoLinks.find(video => video.id === videoId);
+            if (!existingVideo || !existingVideo.title) {
+                const titles = await getVideoTitles([videoId]);
+                const title = titles[videoId] || 'Unknown Title';
+                const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/default.jpg`;
+                existingVideo = { id: videoId, title, thumbnail: thumbnailUrl };
+            }
+
+            // Update the links array
+            videoLinks = [existingVideo, ...videoLinks.filter(video => video.id !== videoId)];
             videoLinks = trimCookie(videoLinks);
+
             try {
                 setCookie('videoLinks', JSON.stringify(videoLinks), 30);
                 localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
@@ -281,7 +309,7 @@
 
         async function deleteLink(videoId) {
             let videoLinks = await getVideoLinks();
-            videoLinks = videoLinks.filter(id => id !== videoId);
+            videoLinks = videoLinks.filter(video => video.id !== videoId);
             videoLinks = trimCookie(videoLinks);
             try {
                 setCookie('videoLinks', JSON.stringify(videoLinks), 30);
@@ -301,6 +329,18 @@
                 await saveLink(videoId);
             } else {
                 alert('Invalid YouTube link');
+            }
+        });
+
+        // Close the popup when clicking outside the iframe
+        document.getElementById('popup').addEventListener('click', (event) => {
+            if (event.target === event.currentTarget) {
+                // Reset the iframe src to stop the video
+                const iframe = document.getElementById('popup-frame');
+                iframe.src = '';
+                
+                // Hide the popup
+                event.currentTarget.style.display = 'none';
             }
         });
 
