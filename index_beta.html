@@ -228,15 +228,44 @@
             }
         }
 
+        const videoTitleCache = {}; // In-memory cache for video titles
+
+        async function getVideoTitle(videoId) {
+            // Check the cache first
+            if (videoTitleCache[videoId]) {
+                return videoTitleCache[videoId];
+            }
+
+            // If not cached, fetch and store the title
+            const url = `${baseUrl}/oembed?url=${baseUrl}/watch?v=${videoId}&format=json`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`Error fetching title: ${response.statusText}`);
+                }
+                const data = await response.json();
+                videoTitleCache[videoId] = data.title; // Cache the title
+                return data.title;
+            } catch (error) {
+                console.error(error);
+                return 'Error fetching title';
+            }
+        }
+
         async function deleteLink(index) {
             let videoLinks = getVideoLinks();
+            const deletedId = videoLinks[index];
             videoLinks.splice(index, 1);
+
+            // Optional: Remove from cache
+            delete videoTitleCache[deletedId];
+
             videoLinks = trimToFitMaxSize(videoLinks);
 
             try {
                 setCookie('videoLinks', JSON.stringify(videoLinks), 30);
                 localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
-                await renderHistory();
+                await renderHistory(); // Re-render the list without fetching titles again
             } catch (error) {
                 console.error('Error deleting link:', error);
             }
