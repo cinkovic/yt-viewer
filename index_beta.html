@@ -192,11 +192,33 @@
     </div>
 
     <script>
-        const MAX_COOKIE_SIZE = 3920; // less contingency 
-        const MAX_ENTRIES = 250;
-        const CHECK_INTERVAL_MS = 3600000;
         const baseUrl = 'https://www.youtube.com';
         const historyList = document.getElementById('history');
+
+        async function getVideoTitles(videoIds) {
+            const titles = {};
+            const requests = videoIds.map(async (id) => {
+                try {
+                    const response = await fetch(`${baseUrl}/oembed?url=${baseUrl}/watch?v=${id}&format=json`);
+                    if (response.ok) {
+                        const data = await response.json();
+                        titles[id] = data.title;
+                    } else {
+                        titles[id] = 'Error fetching title';
+                    }
+                } catch (error) {
+                    console.error(`Error fetching title for ${id}:`, error);
+                    titles[id] = 'Error fetching title';
+                }
+            });
+            await Promise.all(requests);
+            return titles;
+        }
+
+        function extractVideoId(url) {
+            const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/[^\/]+\/|(?:v|e(?:mbed)?|u\/\w+\/|shorts\/|watch\?(?:.*&)?v=))|youtu\.be\/)([^#&?]*).*/i);
+            return match ? match[1] : null;
+        }
 
         function setCookie(name, value, days) {
             const date = new Date();
@@ -217,7 +239,8 @@
         }
 
         function trimCookie(videoLinks) {
-            videoLinks = videoLinks.slice(0, MAX_ENTRIES);
+            const MAX_COOKIE_SIZE = 3920;
+            videoLinks = videoLinks.slice(0, MAX_COOKIE_SIZE);
             while (encodeURIComponent(JSON.stringify(videoLinks)).length > MAX_COOKIE_SIZE) {
                 videoLinks.pop();
             }
@@ -227,39 +250,22 @@
         async function getVideoLinks() {
             const linksLocalStorage = JSON.parse(localStorage.getItem('videoLinks')) || [];
             const linksCookie = JSON.parse(getCookie('videoLinks') || '[]');
-            
             const uniqueLinks = new Set([...linksLocalStorage, ...linksCookie]);
-
             return trimCookie([...uniqueLinks]);
         }
 
         async function renderHistory() {
             const videoLinks = await getVideoLinks();
-        
-            // Show skeletons
+            const titles = await getVideoTitles(videoLinks);
             historyList.innerHTML = '';
-            videoLinks.forEach(() => {
-                const skeletonLi = document.createElement('li');
-                skeletonLi.classList.add('skeleton');
-                skeletonLi.style.height = '60px'; // Adjust height as needed
-                historyList.appendChild(skeletonLi);
-            });
-        
-            const listItems = [];
-            for (let index = 0; index < videoLinks.length; index++) {
-                const videoId = videoLinks[index];
-                const title = await getVideoTitle(videoId);
-                const thumbnailUrl = getThumbnailUrl(videoId);
-        
+            videoLinks.forEach((id) => {
+                const title = titles[id] || 'Unknown Title';
+                const thumbnailUrl = `https://img.youtube.com/vi/${id}/default.jpg`;
                 const li = document.createElement('li');
                 li.innerHTML = `<img src="${thumbnailUrl}" alt="Thumbnail" class="thumbnail"> <span class="video-title">${title}</span> <div class="play-icon"></div> <div class="delete-icon"></div>`;
-                li.dataset.index = index;
-                listItems.push(li);
-            }
-
-            // Replace skeletons with actual content
-            historyList.innerHTML = '';
-            listItems.forEach(item => historyList.appendChild(item));
+                li.dataset.videoId = id;
+                historyList.appendChild(li);
+            });
         }
 
         async function saveLink(videoId) {
@@ -275,75 +281,24 @@
             }
         }
 
-        const videoTitleCache = {}; // In-memory cache for video titles
-
-        async function getVideoTitle(videoId) {
-            // Check the cache first
-            if (videoTitleCache[videoId]) {
-                return videoTitleCache[videoId];
-            }
-
-            // If not cached, fetch and store the title
-            const url = `${baseUrl}/oembed?url=${baseUrl}/watch?v=${videoId}&format=json`;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Error fetching title: ${response.statusText}`);
-                }
-                const data = await response.json();
-                videoTitleCache[videoId] = data.title; // Cache the title
-                return data.title;
-            } catch (error) {
-                console.error(error);
-                return 'Error fetching title';
-            }
-        }
-        
-        async function deleteLink(index) {
+        async function deleteLink(videoId) {
             let videoLinks = await getVideoLinks();
-            const deletedId = videoLinks[index];
-            videoLinks.splice(index, 1);
-
-            // Optional: Remove from cache
-            delete videoTitleCache[deletedId];
-
+            videoLinks = videoLinks.filter(id => id !== videoId);
             videoLinks = trimCookie(videoLinks);
-
             try {
                 setCookie('videoLinks', JSON.stringify(videoLinks), 30);
                 localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
-                await renderHistory(); // Re-render the list without fetching titles again
+                await renderHistory();
             } catch (error) {
                 console.error('Error deleting link:', error);
             }
         }
 
-        async function getVideoTitle(videoId) {
-            const url = `${baseUrl}/oembed?url=${baseUrl}/watch?v=${videoId}&format=json`;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`Error fetching title: ${response.statusText}`);
-                }
-                const data = await response.json();
-                return data.title;
-            } catch (error) {
-                console.error(error);
-                return 'Error fetching title';
-            }
-        }
-
-        function getThumbnailUrl(videoId) {
-            return `https://img.youtube.com/vi/${videoId}/default.jpg`;
-        }
-
         document.getElementById('submitButton').addEventListener('click', async () => {
             const youtubeLink = document.getElementById('youtubeLink').value;
-            const videoId = youtubeLink.match(/(?:youtube\.com\/(?:[^\/]+\/[^\/]+\/|(?:v|e(?:mbed)?|u\/\w+\/|shorts\/|watch\?(?:.*&)?v=))|youtu\.be\/)([^#&?]*).*/i)?.[1];
-
+            const videoId = extractVideoId(youtubeLink);
             if (videoId) {
-                const popupFrame = document.getElementById('popup-frame');
-                popupFrame.src = `${baseUrl}/embed/${videoId}?autoplay=1`;
+                document.getElementById('popup-frame').src = `${baseUrl}/embed/${videoId}?autoplay=1`;
                 document.getElementById('popup').style.display = 'flex';
                 await saveLink(videoId);
             } else {
@@ -351,44 +306,21 @@
             }
         });
 
-        document.getElementById('clearButton').addEventListener('click', () => {
-            const youtubeLink = document.getElementById('youtubeLink');
-            youtubeLink.value = '';
-            const popupFrame = document.getElementById('popup-frame');
-            popupFrame.src = '';
-            document.getElementById('popup').style.display = 'none';
-        });
-
-        document.getElementById('popup').addEventListener('click', () => {
-            document.getElementById('popup').style.display = 'none';
-            document.getElementById('popup-frame').src = '';
-        });
-
-        historyList.addEventListener('click', (event) => {
+        historyList.addEventListener('click', async (event) => {
             const li = event.target.closest('li');
-            const index = parseInt(li.dataset.index, 10);
+            if (!li) return;
+            const videoId = li.dataset.videoId;
             if (event.target.classList.contains('play-icon')) {
-                const videoId = getVideoLinks()[index];
-                const popupFrame = document.getElementById('popup-frame');
-                popupFrame.src = `${baseUrl}/embed/${videoId}?autoplay=1`;
+                document.getElementById('popup-frame').src = `${baseUrl}/embed/${videoId}?autoplay=1`;
                 document.getElementById('popup').style.display = 'flex';
             } else if (event.target.classList.contains('delete-icon')) {
-                event.preventDefault();
-                deleteLink(index);
+                await deleteLink(videoId);
             }
         });
-
-        async function trimPeriodically() {
-            let videoLinks = await getVideoLinks();
-            videoLinks = trimCookie(videoLinks);
-            setCookie('videoLinks', JSON.stringify(videoLinks), 30);
-            localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
-        }
 
         (async () => {
             await renderHistory();
         })();
-        trimPeriodically();
-        setInterval(trimPeriodically, CHECK_INTERVAL_MS);
-    </script>    
+    </script>
 </body>
+</html>
