@@ -1,7 +1,9 @@
 <head>
     <meta charset="UTF-8">
-    <title>YouTube Video Viewer</title>
+    <title>YT Viewer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Personal video player with better user experience.">
+    <meta name="keywords" content="personal player, online player, player, presentation player, meetings player, professional presentation, business presentation player, business meeting player">
     <style>
         body {
             background-color: #0f0f0f;
@@ -159,6 +161,22 @@
             border-radius: 8px;
             margin-right: 10px;
         }
+        .skeleton {
+            background: #333;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            width: 100%;
+            height: 40px;
+            animation: loading 1.5s infinite;
+        }
+        @keyframes loading {
+            0% {
+                background-position: -200px 0;
+            }
+            100% {
+                background-position: calc(200px + 100%) 0;
+            }
+        }
     </style>
 </head>
 
@@ -174,7 +192,7 @@
     </div>
 
     <script>
-        const MAX_COOKIE_SIZE = 3920;
+        const MAX_COOKIE_SIZE = 3920; // less contingency 
         const MAX_ENTRIES = 250;
         const CHECK_INTERVAL_MS = 3600000;
         const baseUrl = 'https://www.youtube.com';
@@ -198,7 +216,7 @@
             return "";
         }
 
-        function trimToFitMaxSize(videoLinks) {
+        function trimCookie(videoLinks) {
             videoLinks = videoLinks.slice(0, MAX_ENTRIES);
             while (encodeURIComponent(JSON.stringify(videoLinks)).length > MAX_COOKIE_SIZE) {
                 videoLinks.pop();
@@ -207,18 +225,47 @@
         }
 
         async function getVideoLinks() {
-            const localStorageLinks = JSON.parse(localStorage.getItem('videoLinks')) || [];
-            const cookieLinks = JSON.parse(getCookie('videoLinks') || '[]');
+            const linksLocalStorage = JSON.parse(localStorage.getItem('videoLinks')) || [];
+            const linksCookie = JSON.parse(getCookie('videoLinks') || '[]');
             
-            const uniqueLinks = new Set([...localStorageLinks, ...cookieLinks]);
+            const uniqueLinks = new Set([...linksLocalStorage, ...linksCookie]);
 
-            return trimToFitMaxSize([...uniqueLinks]);
+            return trimCookie([...uniqueLinks]);
+        }
+
+        async function renderHistory() {
+            const videoLinks = await getVideoLinks();
+        
+            // Show skeletons
+            historyList.innerHTML = '';
+            videoLinks.forEach(() => {
+                const skeletonLi = document.createElement('li');
+                skeletonLi.classList.add('skeleton');
+                skeletonLi.style.height = '60px'; // Adjust height as needed
+                historyList.appendChild(skeletonLi);
+            });
+        
+            const listItems = [];
+            for (let index = 0; index < videoLinks.length; index++) {
+                const videoId = videoLinks[index];
+                const title = await getVideoTitle(videoId);
+                const thumbnailUrl = getThumbnailUrl(videoId);
+        
+                const li = document.createElement('li');
+                li.innerHTML = `<img src="${thumbnailUrl}" alt="Thumbnail" class="thumbnail"> <span class="video-title">${title}</span> <div class="play-icon"></div> <div class="delete-icon"></div>`;
+                li.dataset.index = index;
+                listItems.push(li);
+            }
+
+            // Replace skeletons with actual content
+            historyList.innerHTML = '';
+            listItems.forEach(item => historyList.appendChild(item));
         }
 
         async function saveLink(videoId) {
             let videoLinks = await getVideoLinks();
             videoLinks = [videoId, ...videoLinks.filter(id => id !== videoId)];
-            videoLinks = trimToFitMaxSize(videoLinks);
+            videoLinks = trimCookie(videoLinks);
             try {
                 setCookie('videoLinks', JSON.stringify(videoLinks), 30);
                 localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
@@ -251,7 +298,7 @@
                 return 'Error fetching title';
             }
         }
-
+        
         async function deleteLink(index) {
             let videoLinks = await getVideoLinks();
             const deletedId = videoLinks[index];
@@ -260,7 +307,7 @@
             // Optional: Remove from cache
             delete videoTitleCache[deletedId];
 
-            videoLinks = trimToFitMaxSize(videoLinks);
+            videoLinks = trimCookie(videoLinks);
 
             try {
                 setCookie('videoLinks', JSON.stringify(videoLinks), 30);
@@ -269,23 +316,6 @@
             } catch (error) {
                 console.error('Error deleting link:', error);
             }
-        }
-
-        async function renderHistory() {
-            const videoLinks = await getVideoLinks();
-            const listItems = [];
-            for (let index = 0; index < videoLinks.length; index++) {
-                const videoId = videoLinks[index];
-                const title = await getVideoTitle(videoId);
-                const thumbnailUrl = getThumbnailUrl(videoId);
-                const li = document.createElement('li');
-                li.innerHTML = `<img src="${thumbnailUrl}" alt="Thumbnail" class="thumbnail"> <span class="video-title">${title}</span> <div class="play-icon"></div> <div class="delete-icon"></div>`;
-                li.dataset.index = index;
-                listItems.push(li);
-            }
-
-            historyList.innerHTML = '';
-            listItems.forEach(item => historyList.appendChild(item));
         }
 
         async function getVideoTitle(videoId) {
@@ -350,7 +380,7 @@
 
         async function trimPeriodically() {
             let videoLinks = await getVideoLinks();
-            videoLinks = trimToFitMaxSize(videoLinks);
+            videoLinks = trimCookie(videoLinks);
             setCookie('videoLinks', JSON.stringify(videoLinks), 30);
             localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
         }
