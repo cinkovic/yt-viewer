@@ -210,7 +210,7 @@
             const localStorageLinks = JSON.parse(localStorage.getItem('videoLinks')) || [];
             const cookieLinks = JSON.parse(getCookie('videoLinks') || '[]');
             
-            const uniqueLinks = new Set([...cookieLinks, ...localStorageLinks]);
+            const uniqueLinks = new Set([...localStorageLinks, ...cookieLinks]);
 
             return trimToFitMaxSize([...uniqueLinks]);
         }
