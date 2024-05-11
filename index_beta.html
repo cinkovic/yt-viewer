@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>YT Viewer</title>
@@ -24,25 +26,21 @@
             max-width: 700px;
             margin-bottom: 20px;
         }
-        #youtubeLink {
+        #userInput, #submitButton, #clearButton {
+            height: 48px;
             padding: 12px 18px;
-            width: 100%;
-            flex: 1;
-            margin-bottom: 12px;
             border-radius: 20px;
             border: none;
             font-size: 1.1em;
+            margin-bottom: 7px;
+        }
+        #userInput {
+            width: 100%;
             box-sizing: border-box;
         }
         #submitButton, #clearButton {
-            padding: 12px 22px;
-            border: none;
-            border-radius: 20px;
             cursor: pointer;
-            font-size: 1.1em;
-            margin: 7px;
             transition: transform 0.2s ease;
-            height: 48px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -58,31 +56,29 @@
         #clearButton {
             background-color: #3a3a3a;
             color: white;
+            display: inline-flex;
+            margin-right: 10px;
+            margin-left: 10px;
         }
         #clearButton:hover {
             transform: scale(1.05);
         }
-
         @media (min-width: 768px) {
-            body {
-                font-size: 18px;
-            }
             #inputForm {
                 flex-direction: row;
-                justify-content: center;
+                justify-content: space-between;
                 align-items: center;
             }
-            #youtubeLink {
-                width: 400px;
+            #userInput {
                 margin-right: 15px;
-                margin-bottom: 0;
+                margin-bottom: 0px;
             }
             #submitButton, #clearButton {
-                margin-top: 0;
                 margin-left: 7px;
+                margin-bottom: 10px;
+                margin-top: 7px;
             }
         }
-
         #history {
             list-style: none;
             width: 90%;
@@ -176,55 +172,49 @@
             }
         }
     </style>
+    
 </head>
-
 <body>
     <div id="inputForm">
-        <input type="text" id="youtubeLink" placeholder="Enter YouTube video link..">
-        <button id="submitButton">Watch</button>
+        <input type="text" id="userInput" placeholder="Enter YouTube video link..">
         <button id="clearButton">Clear</button>
+        <button id="submitButton">Watch</button>
     </div>
     <ul id="history"></ul>
     <div class="popup" id="popup">
         <iframe id="popup-frame" src="" frameborder="0" allowfullscreen allow="autoplay"></iframe>
     </div>
-
     <script>
         const baseUrl = 'https://www.youtube.com';
         const historyList = document.getElementById('history');
-
+    
         async function getVideoTitles(videoIds) {
             const titles = {};
             const requests = videoIds.map(async (id) => {
-                try {
-                    const response = await fetch(`${baseUrl}/oembed?url=${baseUrl}/watch?v=${id}&format=json`);
-                    if (response.ok) {
-                        const data = await response.json();
-                        titles[id] = data.title;
-                    } else {
-                        titles[id] = 'Error fetching title';
-                    }
-                } catch (error) {
-                    console.error(`Error fetching title for ${id}:`, error);
+                const response = await fetch(`${baseUrl}/oembed?url=${baseUrl}/watch?v=${id}&format=json`);
+                if (response.ok) {
+                    const data = await response.json();
+                    titles[id] = data.title;
+                } else {
                     titles[id] = 'Error fetching title';
                 }
             });
             await Promise.all(requests);
             return titles;
         }
-
+    
         function extractVideoId(url) {
             const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/[^\/]+\/|(?:v|e(?:mbed)?|u\/\w+\/|shorts\/|watch\?(?:.*&)?v=))|youtu\.be\/)([^#&?]*).*/i);
             return match ? match[1] : null;
         }
-
+    
         function setCookie(name, value, days) {
             const date = new Date();
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             const expires = "expires=" + date.toUTCString();
             document.cookie = `${name}=${encodeURIComponent(value)};${expires};path=/`;
         }
-
+    
         function getCookie(name) {
             const nameEQ = name + "=";
             const decodedCookie = decodeURIComponent(document.cookie);
@@ -235,40 +225,38 @@
             }
             return "";
         }
-
+    
         function trimCookie(videoLinks) {
-            const MAX_COOKIE_SIZE = 3920; // less 2% contingency..
+            const MAX_COOKIE_SIZE = 3920;   // less 2% contingency..
             videoLinks = videoLinks.slice(0, MAX_COOKIE_SIZE);
             while (encodeURIComponent(JSON.stringify(videoLinks)).length > MAX_COOKIE_SIZE) {
                 videoLinks.pop();
             }
             return videoLinks;
         }
-
+    
         async function getVideoLinks() {
             let linksLocalStorage = JSON.parse(localStorage.getItem('videoLinks')) || [];
             let linksCookie = JSON.parse(getCookie('videoLinks') || '[]');
-
-            // Handle the old format (array of video IDs)
+    
             if (typeof linksCookie[0] === 'string') {
                 linksCookie = linksCookie.map(id => ({ id, title: '', thumbnail: '' }));
             }
             if (typeof linksLocalStorage[0] === 'string') {
                 linksLocalStorage = linksLocalStorage.map(id => ({ id, title: '', thumbnail: '' }));
             }
-
-            // Combine and deduplicate video links
+    
             const uniqueLinks = new Map(linksLocalStorage.map(video => [video.id, video])
                 .concat(linksCookie.map(video => [video.id, video])));
-
+    
             return trimCookie(Array.from(uniqueLinks.values()));
         }
-
+    
         async function renderHistory() {
             const videoLinks = await getVideoLinks();
             const videoIdsWithoutMetadata = videoLinks.filter(v => !v.title).map(v => v.id);
             const titles = await getVideoTitles(videoIdsWithoutMetadata);
-
+    
             historyList.innerHTML = '';
             videoLinks.forEach((video) => {
                 if (!video.title) {
@@ -276,16 +264,18 @@
                     video.thumbnail = `https://img.youtube.com/vi/${video.id}/default.jpg`;
                 }
                 const li = document.createElement('li');
-                li.innerHTML = `<img src="${video.thumbnail}" alt="Thumbnail" class="thumbnail"> <span class="video-title">${video.title}</span> <div class="play-icon"></div> <div class="delete-icon"></div>`;
+                li.innerHTML = `<img src="${video.thumbnail}" alt="Thumbnail" class="thumbnail"> 
+                                <span class="video-title">${video.title}</span> 
+                                <div class="play-icon"></div> 
+                                <div class="delete-icon"></div>`;
                 li.dataset.videoId = video.id;
                 historyList.appendChild(li);
             });
         }
-
+    
         async function saveLink(videoId) {
             let videoLinks = await getVideoLinks();
-
-            // Check if the metadata is already available
+    
             let existingVideo = videoLinks.find(video => video.id === videoId);
             if (!existingVideo || !existingVideo.title) {
                 const titles = await getVideoTitles([videoId]);
@@ -293,11 +283,10 @@
                 const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/default.jpg`;
                 existingVideo = { id: videoId, title, thumbnail: thumbnailUrl };
             }
-
-            // Update the links array
+    
             videoLinks = [existingVideo, ...videoLinks.filter(video => video.id !== videoId)];
             videoLinks = trimCookie(videoLinks);
-
+    
             try {
                 setCookie('videoLinks', JSON.stringify(videoLinks), 30);
                 localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
@@ -306,7 +295,7 @@
                 console.error('Error saving link:', error);
             }
         }
-
+    
         async function deleteLink(videoId) {
             let videoLinks = await getVideoLinks();
             videoLinks = videoLinks.filter(video => video.id !== videoId);
@@ -319,54 +308,60 @@
                 console.error('Error deleting link:', error);
             }
         }
-
-        document.getElementById('submitButton').addEventListener('click', async () => {
-            const youtubeLink = document.getElementById('youtubeLink').value;
-            const videoId = extractVideoId(youtubeLink);
-            if (videoId) {
-                document.getElementById('popup-frame').src = `${baseUrl}/embed/${videoId}?autoplay=1`;
-                document.getElementById('popup').style.display = 'flex';
-                await saveLink(videoId);
-            } else {
-                alert('Invalid YouTube link');
-            }
+    
+        document.addEventListener('DOMContentLoaded', function () {
+            const userInput = document.getElementById('userInput');
+            const clearButton = document.getElementById('clearButton');
+            const submitButton = document.getElementById('submitButton');
+    
+            clearButton.style.display = userInput.value ? 'inline-flex' : 'none';
+    
+            userInput.addEventListener('input', function() {
+                clearButton.style.display = this.value ? 'inline-flex' : 'none';
+            });
+    
+            submitButton.addEventListener('click', async () => {
+                const videoId = extractVideoId(userInput.value);
+                if (videoId) {
+                    document.getElementById('popup-frame').src = `${baseUrl}/embed/${videoId}?autoplay=1`;
+                    document.getElementById('popup').style.display = 'flex';
+                    await saveLink(videoId);
+                } else {
+                    alert('Invalid YouTube link');
+                }
+            });
+    
+            clearButton.addEventListener('click', () => {
+                userInput.value = '';
+                document.getElementById('popup-frame').src = '';
+                document.getElementById('popup').style.display = 'none';
+                clearButton.style.display = 'none';
+            });
+    
+            document.getElementById('popup').addEventListener('click', (event) => {
+                if (event.target === event.currentTarget) {
+                    const iframe = document.getElementById('popup-frame');
+                    iframe.src = '';
+                    event.currentTarget.style.display = 'none';
+                }
+            });
+    
+            historyList.addEventListener('click', async (event) => {
+                const li = event.target.closest('li');
+                if (!li) return;
+                const videoId = li.dataset.videoId;
+                if (event.target.classList.contains('play-icon')) {
+                    document.getElementById('popup-frame').src = `${baseUrl}/embed/${videoId}?autoplay=1`;
+                    document.getElementById('popup').style.display = 'flex';
+                } else if (event.target.classList.contains('delete-icon')) {
+                    await deleteLink(videoId);
+                }
+            });
+    
+            (async () => {
+                await renderHistory();
+            })();
         });
-
-        document.getElementById('clearButton').addEventListener('click', () => {
-            const youtubeLink = document.getElementById('youtubeLink');
-            youtubeLink.value = ''; // Clear the input field
-            const popupFrame = document.getElementById('popup-frame');
-            popupFrame.src = ''; // Clear the iframe
-            document.getElementById('popup').style.display = 'none'; // Hide the popup
-        });
-
-        // Close the popup when clicking outside the iframe
-        document.getElementById('popup').addEventListener('click', (event) => {
-            if (event.target === event.currentTarget) {
-                // Reset the iframe src to stop the video
-                const iframe = document.getElementById('popup-frame');
-                iframe.src = '';
-                
-                // Hide the popup
-                event.currentTarget.style.display = 'none';
-            }
-        });
-
-        historyList.addEventListener('click', async (event) => {
-            const li = event.target.closest('li');
-            if (!li) return;
-            const videoId = li.dataset.videoId;
-            if (event.target.classList.contains('play-icon')) {
-                document.getElementById('popup-frame').src = `${baseUrl}/embed/${videoId}?autoplay=1`;
-                document.getElementById('popup').style.display = 'flex';
-            } else if (event.target.classList.contains('delete-icon')) {
-                await deleteLink(videoId);
-            }
-        });
-
-        (async () => {
-            await renderHistory();
-        })();
-    </script>
+    </script>    
 </body>
 </html>
