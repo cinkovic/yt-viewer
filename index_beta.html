@@ -29,18 +29,19 @@
         #userInput, #submitButton, #clearButton {
             height: 48px;
             padding: 12px 18px;
-            border-radius: 20px;
+            border-radius: 30px;
             border: none;
             font-size: 1.1em;
             margin-bottom: 7px;
+            outline: none;
         }
         #userInput {
+            transition: transform 2s ease;
             width: 100%;
             box-sizing: border-box;
         }
         #submitButton, #clearButton {
             cursor: pointer;
-            transition: transform 0.2s ease;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -49,6 +50,7 @@
             background-color: #f70606;
             color: white;
             font-weight: bold;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
         }
         #submitButton:hover {
             transform: scale(1.09);
