@@ -325,7 +325,7 @@
             submitButton.addEventListener('click', async () => {
                 const videoId = extractVideoId(userInput.value);
                 if (videoId) {
-                    document.getElementById('popup-frame').src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+                    document.getElementById('popup-frame').src = `https://www.youtube-nocookie.com/embed/${videoId}?playlist=${videoId}&autoplay=1&iv_load_policy=3&loop=1&start=`;
                     document.getElementById('popup').style.display = 'flex';
                     await saveLink(videoId);
                 } else {
@@ -353,7 +353,7 @@
                 if (!li) return;
                 const videoId = li.dataset.videoId;
                 if (event.target.classList.contains('play-icon')) {
-                    document.getElementById('popup-frame').src = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
+                    document.getElementById('popup-frame').src = `https://www.youtube-nocookie.com/embed/${videoId}?playlist=${videoId}&autoplay=1&iv_load_policy=3&loop=1&start=`;
                     document.getElementById('popup').style.display = 'flex';
                 } else if (event.target.classList.contains('delete-icon')) {
                     await deleteLink(videoId);
