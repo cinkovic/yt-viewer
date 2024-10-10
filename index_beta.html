@@ -210,13 +210,12 @@
     </div>
     <script>
         const baseUrl = 'https://www.youtube-nocookie.com';
-        const baseUrlTweaked = 'https://www.youtube-nocookie.com';
         const historyList = document.getElementById('history');
     
         async function getVideoTitles(videoIds) {
             const titles = {};
             const requests = videoIds.map(async (id) => {
-                const response = await fetch(`${baseUrlTweaked}/oembed?url=${baseUrlTweaked}/watch?v=${id}&format=json`);
+                const response = await fetch(`${baseUrl}/oembed?url=${baseUrl}/watch?v=${id}&format=json`);
                 if (response.ok) {
                     const data = await response.json();
                     titles[id] = data.title;
