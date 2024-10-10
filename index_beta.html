@@ -206,11 +206,11 @@
     </div>
     <ul id="history"></ul>
     <div class="popup" id="popup">
-        <iframe id="popup-frame" src="" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+        <iframe id="popup-frame" src="" frameborder="0" allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation"></iframe>
     </div>
     <script>
-        const baseUrl = 'https://www.yout-ube.com';
-        const baseUrlTweaked = 'https://www.yout-ube.com';
+        const baseUrl = 'https://www.youtube-nocookie.com';
+        const baseUrlTweaked = 'https://www.youtube-nocookie.com';
         const historyList = document.getElementById('history');
     
         async function getVideoTitles(videoIds) {
@@ -348,7 +348,7 @@
             submitButton.addEventListener('click', async () => {
                 const videoId = extractVideoId(userInput.value);
                 if (videoId) {
-                    document.getElementById('popup-frame').src = `${baseUrl}/watch?v=${videoId}`;
+                    document.getElementById('popup-frame').src = `${baseUrl}/embed/${videoId}`;
                     document.getElementById('popup').style.display = 'flex';
                     await saveLink(videoId);
                 } else {
@@ -376,7 +376,7 @@
                 if (!li) return;
                 const videoId = li.dataset.videoId;
                 if (event.target.classList.contains('play-icon')) {
-                    document.getElementById('popup-frame').src = `${baseUrl}/watch?v=${videoId}`;
+                    document.getElementById('popup-frame').src = `${baseUrl}/embed/${videoId}`;
                     document.getElementById('popup').style.display = 'flex';
                 } else if (event.target.classList.contains('delete-icon')) {
                     await deleteLink(videoId);
