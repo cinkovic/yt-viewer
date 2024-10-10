@@ -176,7 +176,7 @@
             
             if (videoId) {
                 const popupFrame = document.getElementById('popup-frame');
-                popupFrame.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+                popupFrame.src = `https://www.youtube-nocookie.com/embed/${videoId}?playlist=${videoId}&autoplay=1&iv_load_policy=3&loop=1&start=`;
                 document.getElementById('popup').style.display = 'flex';
             } else {
                 alert('Invalid YouTube link');
@@ -210,4 +210,3 @@
     </script>
 </body>
 </html>
-
