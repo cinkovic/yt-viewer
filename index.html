@@ -1,3 +1,5 @@
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>YT Viewer</title>
@@ -23,30 +25,32 @@
             width: 90%;
             max-width: 700px;
             margin-bottom: 20px;
-            border-radius: 30px;
         }
-        #youtubeLink {
+        #userInput, #submitButton, #clearButton {
+            height: 48px;
             padding: 12px 18px;
-            width: 100%;
-            flex: 1;
-            margin-bottom: 12px;
             border-radius: 30px;
             border: none;
             font-size: 1.1em;
+            margin-bottom: 7px;
+            outline: none;
+        }
+        #userInput {
+            transition: transform 2s ease;
+            width: 100%;
+            box-sizing: border-box;
         }
         #submitButton, #clearButton {
-            padding: 12px 22px;
-            border: none;
-            border-radius: 20px;
             cursor: pointer;
-            font-size: 1.1em;
-            margin: 7px;
-            transition: transform 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         #submitButton {
             background-color: #f70606;
             color: white;
             font-weight: bold;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
         }
         #submitButton:hover {
             transform: scale(1.09);
@@ -54,9 +58,45 @@
         #clearButton {
             background-color: #3a3a3a;
             color: white;
+            display: inline-flex;
+            margin-right: 10px;
+            margin-left: 10px;
         }
         #clearButton:hover {
             transform: scale(1.05);
+        }
+        @media (min-width: 768px) {
+            #inputForm {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            #userInput {
+                margin-right: 15px;
+                margin-bottom: 0px;
+            }
+            #submitButton, #clearButton {
+                margin-left: 7px;
+                margin-bottom: 10px;
+                margin-top: 7px;
+            }
+        }
+        .popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 1);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        .popup iframe {
+            width: 80%;
+            height: 80%;
+            border-radius: 10px;
+            border: none;
         }
         #bottomButton {
             margin-top: auto;
@@ -110,103 +150,81 @@
         #bottomButton:hover img.lock-closed {
             display: none;
         }
-        .popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 1);
-            display: none;
-            justify-content: center;
-            align-items: center;
-        }
-        .popup iframe {
-            width: 80%;
-            height: 80%;
-            border-radius: 10px;
-            border: none;
-        }
-        @media (min-width: 768px) {
-            body {
-                font-size: 18px;
-            }
-            #inputForm {
-                flex-direction: row;
-                justify-content: center;
-            }
-            #youtubeLink {
-                width: 400px;
-                margin-right: 15px;
-                margin-bottom: 0;
-            }
-            #submitButton, #clearButton {
-                margin-top: 0;
-                margin-left: 7px;
-            }
         @media (max-height: 300px) {
             #bottomButton {
                 display: none;
-               }
             }
         }
     </style>
 </head>
 <body>
     <div id="inputForm">
-        <input type="text" id="youtubeLink" placeholder="Enter YouTube video link..">
-        <button id="submitButton">Watch</button>
+        <input type="text" id="userInput" placeholder="Enter YouTube video link..">
         <button id="clearButton">Clear</button>
+        <button id="submitButton">Watch</button>
     </div>
-    <ul id="history"></ul>
+    <div class="popup" id="popup">
+        <iframe id="popup-frame" src="" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+    </div>
     <a href="index_beta.html" id="bottomButton">
         <img src="https://img.icons8.com/material-outlined/24/000000/lock--v1.png" alt="Lock Closed" class="lock-closed">
         <img src="https://img.icons8.com/material-outlined/24/ffffff/unlock--v1.png" alt="Unlock" class="lock-open">
     </a>
-    <div class="popup" id="popup">
-        <iframe id="popup-frame" src="" frameborder="0" allowfullscreen=""></iframe>
-    </div>
 
     <script>
-        const baseUrl = 'https://www.youtube.com';
-        
-        document.getElementById('submitButton').addEventListener('click', () => {
-            const youtubeLink = document.getElementById('youtubeLink').value;
-            const videoId = youtubeLink.match(/(?:youtube\.com\/(?:[^/]+\/[^/]+\/|(?:v|e(?:mbed)?|u\/\w+\/|shorts\/|watch\?(?:.*&)?v=))|youtu\.be\/)([^#&?]*).*/i)?.[1];
-            
-            if (videoId) {
-                const popupFrame = document.getElementById('popup-frame');
-                popupFrame.src = `https://www.youtube-nocookie.com/embed/${videoId}?playlist=${videoId}&autoplay=1&iv_load_policy=3&loop=1&start=`;
-                document.getElementById('popup').style.display = 'flex';
-            } else {
-                alert('Invalid YouTube link');
-            }
-        });
-    
-        document.getElementById('clearButton').addEventListener('click', () => {
-            const youtubeLink = document.getElementById('youtubeLink');
-            youtubeLink.value = ''; // Clear the input field
-            const popupFrame = document.getElementById('popup-frame');
-            popupFrame.src = ''; // Clear the iframe
-            document.getElementById('popup').style.display = 'none'; // Hide the popup
-        });
-    
-        document.getElementById('popup').addEventListener('click', () => {
-            document.getElementById('popup').style.display = 'none';
-            document.getElementById('popup-frame').src = '';
-        });
+        document.addEventListener('DOMContentLoaded', function () {
+            const userInput = document.getElementById('userInput');
+            const clearButton = document.getElementById('clearButton');
+            const submitButton = document.getElementById('submitButton');
 
-        function toggleBottomButtonVisibility() {
-            const bottomButton = document.getElementById('bottomButton');
-            if (window.innerHeight <= 500) {
-                bottomButton.style.display = 'none';
-            } else {
-                bottomButton.style.display = 'flex'; // or 'block', depending on your preference
+            clearButton.style.display = userInput.value ? 'inline-flex' : 'none';
+
+            userInput.addEventListener('input', function() {
+                clearButton.style.display = this.value ? 'inline-flex' : 'none';
+            });
+
+            submitButton.addEventListener('click', () => {
+                const videoId = extractVideoId(userInput.value);
+                if (videoId) {
+                    document.getElementById('popup-frame').src = `https://www.youtube-nocookie.com/embed/${videoId}?playlist=${videoId}&autoplay=1&iv_load_policy=3&loop=1&start=`;
+                    document.getElementById('popup').style.display = 'flex';
+                } else {
+                    alert('Invalid YouTube link');
+                }
+            });
+
+            clearButton.addEventListener('click', () => {
+                userInput.value = '';
+                document.getElementById('popup-frame').src = '';
+                document.getElementById('popup').style.display = 'none';
+                clearButton.style.display = 'none';
+            });
+
+            document.getElementById('popup').addEventListener('click', (event) => {
+                if (event.target === event.currentTarget) {
+                    const iframe = document.getElementById('popup-frame');
+                    iframe.src = '';
+                    event.currentTarget.style.display = 'none';
+                }
+            });
+
+            function extractVideoId(url) {
+                const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/[^\/]+\/|(?:v|e(?:mbed)?|u\/\w+\/|shorts\/|watch\?(?:.*&)?v=))|youtu\.be\/)([^#&?]*).*/i);
+                return match ? match[1] : null;
             }
-        }
-        
-        window.addEventListener('resize', toggleBottomButtonVisibility);
-        window.addEventListener('load', toggleBottomButtonVisibility);
+
+            function toggleBottomButtonVisibility() {
+                const bottomButton = document.getElementById('bottomButton');
+                if (window.innerHeight <= 500) {
+                    bottomButton.style.display = 'none';
+                } else {
+                    bottomButton.style.display = 'flex';
+                }
+            }
+            
+            window.addEventListener('resize', toggleBottomButtonVisibility);
+            window.addEventListener('load', toggleBottomButtonVisibility);
+        });
     </script>
 </body>
 </html>
