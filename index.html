@@ -122,6 +122,8 @@
             -webkit-user-select: none;
             user-select: none;
             outline: none;
+            appearance: none;
+            -webkit-appearance: none;
         }
         #bottomButton::after {
             content: '';
@@ -162,6 +164,13 @@
         }
         #bottomButton:focus {
             outline: none;
+        }
+        * {
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+        }
+        #bottomButton img {
+            pointer-events: none;
         }
     </style>
 </head>
