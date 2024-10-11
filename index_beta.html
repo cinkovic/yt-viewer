@@ -25,68 +25,8 @@
             width: 90%;
             max-width: 700px;
             margin-bottom: 20px;
-        }
-        #userInput {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        #buttonContainer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-        }
-        #clearButton, #submitButton {
-            width: auto;
-            padding: 12px 18px;
-            border-radius: 30px;
-            border: none;
-            font-size: 1.1em;
-            margin: 5px 0;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #submitButton {
-            background-color: #f70606;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
-            transition: transform 0.2s ease, margin-top 0.2s ease;
-        }
-        #submitButton:hover {
-            transform: scale(1.09);
-        }
-        #submitButton.no-clear {
-            margin-top: 5px;
-        }
-        #clearButton {
-            background-color: #3a3a3a;
-            color: white;
-            display: none;
-        }
-        #clearButton:hover {
-            transform: scale(1.05);
-        }
-        @media (min-width: 768px) {
-            #inputForm {
-                flex-direction: row;
-                align-items: center;
-            }
-            #userInput {
-                width: calc(100% - 220px);
-                margin-bottom: 0;
-                margin-right: 15px;
-            }
-            #buttonContainer {
-                flex-direction: row;
-                width: auto;
-            }
-            #clearButton, #submitButton {
-                width: auto;
-                margin: 0 5px;
-            }
+            height: auto;
+            overflow: visible;
         }
         #userInput, #submitButton, #clearButton {
             height: 48px;
@@ -98,7 +38,6 @@
             outline: none;
         }
         #userInput {
-            transition: transform 2s ease;
             width: 100%;
             box-sizing: border-box;
         }
@@ -113,21 +52,39 @@
             color: white;
             font-weight: bold;
             box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
-            transition: transform 0.2s ease, margin-top 0.2s ease;
-            margin-top: 0;
-        }
-        #submitButton:hover {
-            transform: scale(1.09);
-        }
-        #submitButton.no-clear {
-            margin-top: 5px;
+            transition: transform 0.2s ease;
         }
         #clearButton {
             background-color: #3a3a3a;
             color: white;
             display: none;
-            margin-right: 10px;
-            margin-left: 10px;
+        }
+        @media (min-width: 768px) {
+            #inputForm {
+                flex-direction: row;
+                justify-content: center;
+                align-items: center;
+                height: 48px;
+            }
+            #userInput {
+                width: calc(100% - 220px);
+                margin-right: 15px;
+                margin-bottom: 0;
+            }
+            #submitButton, #clearButton {
+                width: auto;
+                margin: 0 5px;
+                flex-shrink: 0;
+            }
+        }
+        #userInput {
+            transition: transform 2s ease;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        #submitButton:hover {
+            transform: scale(1.09);
+            box-shadow: 0px 0px 13px rgba(255, 255, 255, 0.3);
         }
         #clearButton:hover {
             transform: scale(1.05);
@@ -225,33 +182,80 @@
                 background-position: calc(200px + 100%) 0;
             }
         }
+        .custom-alert {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .alert-content {
+            background-color: #2a2a2a;
+            margin: 15% auto;
+            padding: 30px 20px 35px 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .alert-content button {
+            margin-top: 15px;
+            padding: 12px 18px;
+            background-color: #f70606;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: normal;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s ease;
+        }
+        .alert-content button:hover {
+            transform: scale(1.09);
+        }
     </style>
     
 </head>
 <body>
     <div id="inputForm">
-        <input type="text" id="userInput" placeholder="Enter YouTube video link..">
-        <div id="buttonContainer">
-            <button id="clearButton">Clear</button>
-            <button id="submitButton">Watch</button>
-        </div>
+        <input type="text" id="userInput" placeholder="Enter YouTube video link.." aria-label="YouTube video link input">
+        <button id="clearButton" aria-label="Clear input">Clear</button>
+        <button id="submitButton" aria-label="Watch video">Watch</button>
     </div>
-    <ul id="history"></ul>
-    <div class="popup" id="popup">
+    <ul id="history" aria-label="Video history"></ul>
+    <div class="popup" id="popup" role="dialog" aria-label="Video player">
         <iframe id="popup-frame" src="" frameborder="0" allowfullscreen allow="autoplay"></iframe>
     </div>
+    <div id="customAlert" class="custom-alert">
+        <div class="alert-content">
+            <p id="alertMessage"></p>
+            <button onclick="closeCustomAlert()">OK</button>
+        </div>
+    </div>
     <script>
+        // Hide the popup initially
+        document.getElementById('popup').style.display = 'none';
+        
         const baseUrl = 'https://www.youtube.com';
         const historyList = document.getElementById('history');
-    
+        
         async function getVideoTitles(videoIds) {
             const titles = {};
             const requests = videoIds.map(async (id) => {
-                const response = await fetch(`${baseUrl}/oembed?url=${baseUrl}/watch?v=${id}&format=json`);
-                if (response.ok) {
+                try {
+                    const response = await fetch(`${baseUrl}/oembed?url=${baseUrl}/watch?v=${id}&format=json`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                     const data = await response.json();
                     titles[id] = data.title;
-                } else {
+                } catch (error) {
+                    console.error(`Error fetching title for video ${id}:`, error);
                     titles[id] = 'Error fetching title';
                 }
             });
@@ -309,24 +313,29 @@
         }
     
         async function renderHistory() {
-            const videoLinks = await getVideoLinks();
-            const videoIdsWithoutMetadata = videoLinks.filter(v => !v.title).map(v => v.id);
-            const titles = await getVideoTitles(videoIdsWithoutMetadata);
+            try {
+                const videoLinks = await getVideoLinks();
+                const videoIdsWithoutMetadata = videoLinks.filter(v => !v.title).map(v => v.id);
+                const titles = await getVideoTitles(videoIdsWithoutMetadata);
     
-            historyList.innerHTML = '';
-            videoLinks.forEach((video) => {
-                if (!video.title) {
-                    video.title = titles[video.id] || 'Unknown Title';
-                    video.thumbnail = `https://img.youtube.com/vi/${video.id}/default.jpg`;
-                }
-                const li = document.createElement('li');
-                li.innerHTML = `<img src="${video.thumbnail}" alt="Thumbnail" class="thumbnail"> 
-                                <span class="video-title">${video.title}</span> 
-                                <div class="play-icon"></div> 
-                                <div class="delete-icon"></div>`;
-                li.dataset.videoId = video.id;
-                historyList.appendChild(li);
-            });
+                historyList.innerHTML = '';
+                videoLinks.forEach((video) => {
+                    if (!video.title) {
+                        video.title = titles[video.id] || 'Unknown Title';
+                        video.thumbnail = `https://img.youtube.com/vi/${video.id}/default.jpg`;
+                    }
+                    const li = document.createElement('li');
+                    li.innerHTML = `<img src="${video.thumbnail}" alt="Thumbnail" class="thumbnail"> 
+                                    <span class="video-title">${video.title}</span> 
+                                    <div class="play-icon"></div> 
+                                    <div class="delete-icon"></div>`;
+                    li.dataset.videoId = video.id;
+                    historyList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error rendering history:', error);
+                showCustomAlert('An error occurred while loading your video history. Please try again later.');
+            }
         }
     
         async function saveLink(videoId) {
@@ -365,6 +374,15 @@
             }
         }
     
+        function showCustomAlert(message) {
+            document.getElementById('alertMessage').textContent = message;
+            document.getElementById('customAlert').style.display = 'block';
+        }
+    
+        function closeCustomAlert() {
+            document.getElementById('customAlert').style.display = 'none';
+        }
+        
         document.addEventListener('DOMContentLoaded', function () {
             const userInput = document.getElementById('userInput');
             const clearButton = document.getElementById('clearButton');
@@ -374,15 +392,11 @@
             function updateLayout() {
                 if (userInput.value) {
                     clearButton.style.display = 'inline-flex';
-                    submitButton.classList.remove('no-clear');
                 } else {
                     clearButton.style.display = 'none';
-                    submitButton.classList.add('no-clear');
                 }
             }
-    
-            clearButton.style.display = userInput.value ? 'inline-flex' : 'none';
-            submitButton.classList.add('no-clear');
+            
             updateLayout();
     
             userInput.addEventListener('input', updateLayout);
@@ -421,10 +435,14 @@
                     document.getElementById('popup').style.display = 'flex';
                     saveLink(videoId);
                 } else {
-                    alert('Invalid YouTube link');
+                    showCustomAlert('Please enter a valid YouTube URL.');
                 }
             });
     
+            // ..to make the OK button in alert work
+            document.querySelector('.alert-content button').addEventListener('click', closeCustomAlert);
+            
+
             (async () => {
                 await renderHistory();
             })();
