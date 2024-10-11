@@ -25,8 +25,68 @@
             width: 90%;
             max-width: 700px;
             margin-bottom: 20px;
-            height: 70px;
-            overflow: visible;
+        }
+        #userInput {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        #buttonContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        #clearButton, #submitButton {
+            width: auto; /* Changed from 100% to auto */
+            padding: 12px 18px;
+            border-radius: 30px;
+            border: none;
+            font-size: 1.1em;
+            margin: 5px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #submitButton {
+            background-color: #f70606;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
+            transition: transform 0.2s ease, margin-top 0.2s ease;
+        }
+        #submitButton:hover {
+            transform: scale(1.09);
+        }
+        #submitButton.no-clear {
+            margin-top: 5px;
+        }
+        #clearButton {
+            background-color: #3a3a3a;
+            color: white;
+            display: none;
+        }
+        #clearButton:hover {
+            transform: scale(1.05);
+        }
+        @media (min-width: 768px) {
+            #inputForm {
+                flex-direction: row;
+                align-items: center;
+            }
+            #userInput {
+                width: calc(100% - 220px);
+                margin-bottom: 0;
+                margin-right: 15px;
+            }
+            #buttonContainer {
+                flex-direction: row;
+                width: auto;
+            }
+            #clearButton, #submitButton {
+                width: auto; /* Auto width on desktop */
+                margin: 0 5px;
+            }
         }
         #userInput, #submitButton, #clearButton {
             height: 48px;
@@ -65,35 +125,20 @@
         #clearButton {
             background-color: #3a3a3a;
             color: white;
-            display: inline-flex;
+            display: none;
             margin-right: 10px;
             margin-left: 10px;
         }
         #clearButton:hover {
             transform: scale(1.05);
         }
-        @media (min-width: 768px) {
-            #inputForm {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-            }
-            #userInput {
-                margin-right: 15px;
-                margin-bottom: 0px;
-            }
-            #submitButton, #clearButton {
-                margin-left: 7px;
-                margin-bottom: 10px;
-                margin-top: 7px;
-            }
-        }
         #history {
             list-style: none;
             width: 90%;
             max-width: 700px;
             padding: 0;
-            margin: 20px 0 0 0;
+            margin: 0;
+            transition: margin-top 0.2s ease;
         }
         #history li {
             padding: 8px;
@@ -186,8 +231,10 @@
 <body>
     <div id="inputForm">
         <input type="text" id="userInput" placeholder="Enter YouTube video link..">
-        <button id="clearButton">Clear</button>
-        <button id="submitButton">Watch</button>
+        <div id="buttonContainer">
+            <button id="clearButton">Clear</button>
+            <button id="submitButton">Watch</button>
+        </div>
     </div>
     <ul id="history"></ul>
     <div class="popup" id="popup">
@@ -322,36 +369,29 @@
             const userInput = document.getElementById('userInput');
             const clearButton = document.getElementById('clearButton');
             const submitButton = document.getElementById('submitButton');
+            const history = document.getElementById('history');
     
-            clearButton.style.display = userInput.value ? 'inline-flex' : 'none';
-            submitButton.classList.add('no-clear');
-    
-            userInput.addEventListener('input', function() {
-                if (this.value) {
+            function updateLayout() {
+                if (userInput.value) {
                     clearButton.style.display = 'inline-flex';
                     submitButton.classList.remove('no-clear');
                 } else {
                     clearButton.style.display = 'none';
                     submitButton.classList.add('no-clear');
                 }
-            });
+            }
     
-            submitButton.addEventListener('click', async () => {
-                const videoId = extractVideoId(userInput.value);
-                if (videoId) {
-                    document.getElementById('popup-frame').src = `https://www.youtube-nocookie.com/embed/${videoId}?playlist=${videoId}&autoplay=1&iv_load_policy=3&loop=1&start=`;
-                    document.getElementById('popup').style.display = 'flex';
-                    await saveLink(videoId);
-                } else {
-                    alert('Invalid YouTube link');
-                }
-            });
+            clearButton.style.display = userInput.value ? 'inline-flex' : 'none';
+            submitButton.classList.add('no-clear');
+            updateLayout();
+    
+            userInput.addEventListener('input', updateLayout);
     
             clearButton.addEventListener('click', () => {
                 userInput.value = '';
                 document.getElementById('popup-frame').src = '';
                 document.getElementById('popup').style.display = 'none';
-                clearButton.style.display = 'none';
+                updateLayout();
             });
     
             document.getElementById('popup').addEventListener('click', (event) => {
@@ -371,6 +411,17 @@
                     document.getElementById('popup').style.display = 'flex';
                 } else if (event.target.classList.contains('delete-icon')) {
                     await deleteLink(videoId);
+                }
+            });
+    
+            submitButton.addEventListener('click', () => {
+                const videoId = extractVideoId(userInput.value);
+                if (videoId) {
+                    document.getElementById('popup-frame').src = `https://www.youtube-nocookie.com/embed/${videoId}?playlist=${videoId}&autoplay=1&iv_load_policy=3&loop=1&start=`;
+                    document.getElementById('popup').style.display = 'flex';
+                    saveLink(videoId); // Add this line to save the link to history
+                } else {
+                    alert('Invalid YouTube link');
                 }
             });
     
