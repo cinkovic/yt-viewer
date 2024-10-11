@@ -37,7 +37,7 @@
             width: 100%;
         }
         #clearButton, #submitButton {
-            width: auto; /* Changed from 100% to auto */
+            width: auto;
             padding: 12px 18px;
             border-radius: 30px;
             border: none;
@@ -84,7 +84,7 @@
                 width: auto;
             }
             #clearButton, #submitButton {
-                width: auto; /* Auto width on desktop */
+                width: auto;
                 margin: 0 5px;
             }
         }
@@ -419,7 +419,7 @@
                 if (videoId) {
                     document.getElementById('popup-frame').src = `https://www.youtube-nocookie.com/embed/${videoId}?playlist=${videoId}&autoplay=1&iv_load_policy=3&loop=1&start=`;
                     document.getElementById('popup').style.display = 'flex';
-                    saveLink(videoId); // Add this line to save the link to history
+                    saveLink(videoId);
                 } else {
                     alert('Invalid YouTube link');
                 }
