@@ -25,7 +25,7 @@
             width: 90%;
             max-width: 700px;
             margin-bottom: 20px;
-            height: 70px;
+            height: auto;
             overflow: visible;
         }
         #userInput, #submitButton, #clearButton {
@@ -38,7 +38,6 @@
             outline: none;
         }
         #userInput {
-            transition: transform 2s ease;
             width: 100%;
             box-sizing: border-box;
         }
@@ -53,39 +52,33 @@
             color: white;
             font-weight: bold;
             box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
-            transition: transform 0.2s ease, margin-top 0.2s ease;
-            margin-top: 0;
-        }
-        #submitButton:hover {
-            transform: scale(1.09);
-        }
-        #submitButton.no-clear {
-            margin-top: 5px;
+            transition: transform 0.2s ease;
         }
         #clearButton {
             background-color: #3a3a3a;
             color: white;
-            display: inline-flex;
-            margin-right: 10px;
-            margin-left: 10px;
-        }
-        #clearButton:hover {
-            transform: scale(1.05);
+            display: none;
         }
         @media (min-width: 768px) {
             #inputForm {
                 flex-direction: row;
-                justify-content: space-between;
+                justify-content: center;
                 align-items: center;
+                height: 48px;
             }
             #userInput {
+                width: calc(100% - 220px);
                 margin-right: 15px;
-                margin-bottom: 0px;
+                margin-bottom: 0;
             }
             #submitButton, #clearButton {
-                margin-left: 7px;
-                margin-bottom: 10px;
-                margin-top: 7px;
+                width: auto;
+                margin: 0 5px;
+                flex-shrink: 0;
+            }
+            #userInput, #clearButton, #submitButton {
+                height: 48px;
+                box-sizing: border-box;
             }
         }
         .popup {
@@ -179,62 +172,120 @@
         #bottomButton img {
             pointer-events: none;
         }
+        .custom-alert {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .alert-content {
+            background-color: #2a2a2a;
+            margin: 15% auto;
+            padding: 30px 20px 35px 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 15px;
+            text-align: center;
+        }
+        .alert-content button {
+            margin-top: 15px;
+            padding: 12px 18px;
+            background-color: #f70606;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: normal;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.2);
+            transition: transform 0.2s ease;
+        }
+        .alert-content button:hover {
+            transform: scale(1.09);
+        }
     </style>
 </head>
 <body>
     <div id="inputForm">
-        <input type="text" id="userInput" placeholder="Enter YouTube video link..">
-        <button id="clearButton">Clear</button>
-        <button id="submitButton">Watch</button>
+        <input type="text" id="userInput" placeholder="Enter YouTube video link.." aria-label="YouTube video link input">
+        <button id="clearButton" aria-label="Clear input">Clear</button>
+        <button id="submitButton" aria-label="Watch video">Watch</button>
     </div>
-    <div class="popup" id="popup">
-        <iframe id="popup-frame" src="" frameborder="0" allowfullscreen allow="autoplay"></iframe>
+    <div class="popup" id="popup" role="dialog" aria-label="Video player">
+        <div id="video-placeholder"></div>
     </div>
-    <a href="index_beta.html" id="bottomButton">
+    <a href="index_beta.html" id="bottomButton" aria-label="Switch to beta version">
         <img src="https://img.icons8.com/material-outlined/24/000000/lock--v1.png" alt="Lock Closed" class="lock-closed">
         <img src="https://img.icons8.com/material-outlined/24/ffffff/unlock--v1.png" alt="Unlock" class="lock-open">
     </a>
-
+    <div id="customAlert" class="custom-alert">
+        <div class="alert-content">
+            <p id="alertMessage"></p>
+            <button onclick="closeCustomAlert()">OK</button>
+        </div>
+    </div>
+    
     <script>
+        // Hide the popup initially
+        document.getElementById('popup').style.display = 'none';
+
         document.addEventListener('DOMContentLoaded', function () {
             const userInput = document.getElementById('userInput');
             const clearButton = document.getElementById('clearButton');
             const submitButton = document.getElementById('submitButton');
 
             clearButton.style.display = userInput.value ? 'inline-flex' : 'none';
-            submitButton.classList.add('no-clear');
 
             userInput.addEventListener('input', function() {
                 if (this.value) {
                     clearButton.style.display = 'inline-flex';
-                    submitButton.classList.remove('no-clear');
                 } else {
                     clearButton.style.display = 'none';
-                    submitButton.classList.add('no-clear');
                 }
             });
+
+            function loadYouTubeVideo(videoId) {
+                try {
+                    const placeholder = document.getElementById('video-placeholder');
+                    placeholder.innerHTML = `
+                        <iframe 
+                            src="https://www.youtube-nocookie.com/embed/${videoId}?playlist=${videoId}&autoplay=1&iv_load_policy=3&loop=1&start=" 
+                            frameborder="0" 
+                            allowfullscreen 
+                            allow="autoplay">
+                        </iframe>`;
+                    document.getElementById('popup').style.display = 'flex';
+                } catch (error) {
+                    console.error('Error loading YouTube video:', error);
+                    showCustomAlert('An error occurred while loading the video. Please try again.');
+                }
+            }
 
             submitButton.addEventListener('click', () => {
                 const videoId = extractVideoId(userInput.value);
                 if (videoId) {
-                    document.getElementById('popup-frame').src = `https://www.youtube-nocookie.com/embed/${videoId}?playlist=${videoId}&autoplay=1&iv_load_policy=3&loop=1&start=`;
-                    document.getElementById('popup').style.display = 'flex';
+                    loadYouTubeVideo(videoId);
                 } else {
-                    alert('Invalid YouTube link');
+                    showCustomAlert('Please enter a valid YouTube URL.');
                 }
             });
 
             clearButton.addEventListener('click', () => {
                 userInput.value = '';
-                document.getElementById('popup-frame').src = '';
+                document.getElementById('video-placeholder').innerHTML = '';
                 document.getElementById('popup').style.display = 'none';
                 clearButton.style.display = 'none';
             });
 
             document.getElementById('popup').addEventListener('click', (event) => {
                 if (event.target === event.currentTarget) {
-                    const iframe = document.getElementById('popup-frame');
-                    iframe.src = '';
+                    const placeholder = document.getElementById('video-placeholder');
+                    placeholder.innerHTML = '';
                     event.currentTarget.style.display = 'none';
                 }
             });
@@ -255,6 +306,18 @@
             
             window.addEventListener('resize', toggleBottomButtonVisibility);
             window.addEventListener('load', toggleBottomButtonVisibility);
+
+            // Make the OK button in alert work
+            document.querySelector('.alert-content button').addEventListener('click', closeCustomAlert);
+
+            function showCustomAlert(message) {
+                document.getElementById('alertMessage').textContent = message;
+                document.getElementById('customAlert').style.display = 'block';
+            }
+
+            function closeCustomAlert() {
+                document.getElementById('customAlert').style.display = 'none';
+            }
         });
     </script>
 </body>
