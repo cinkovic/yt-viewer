@@ -306,10 +306,11 @@
                 linksLocalStorage = linksLocalStorage.map(id => ({ id, title: '', thumbnail: '' }));
             }
     
-            const uniqueLinks = new Map(linksLocalStorage.map(video => [video.id, video])
-                .concat(linksCookie.map(video => [video.id, video])));
+            // Combine and deduplicate links from both sources
+            const uniqueLinks = new Map([...linksLocalStorage, ...linksCookie].map(video => [video.id, video]));
     
-            return trimCookie(Array.from(uniqueLinks.values()));
+            // Convert back to array and return all links for localStorage
+            return Array.from(uniqueLinks.values());
         }
     
         async function renderHistory() {
@@ -350,11 +351,15 @@
             }
     
             videoLinks = [existingVideo, ...videoLinks.filter(video => video.id !== videoId)];
-            videoLinks = trimCookie(videoLinks);
     
             try {
-                setCookie('videoLinks', JSON.stringify(videoLinks), 30);
+                // Save all links to localStorage
                 localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
+    
+                // Trim and save to cookie
+                const cookieLinks = trimCookie(videoLinks);
+                setCookie('videoLinks', JSON.stringify(cookieLinks), 30);
+    
                 await renderHistory();
             } catch (error) {
                 console.error('Error saving link:', error);
@@ -364,10 +369,15 @@
         async function deleteLink(videoId) {
             let videoLinks = await getVideoLinks();
             videoLinks = videoLinks.filter(video => video.id !== videoId);
-            videoLinks = trimCookie(videoLinks);
+    
             try {
-                setCookie('videoLinks', JSON.stringify(videoLinks), 30);
+                // Save all links to localStorage
                 localStorage.setItem('videoLinks', JSON.stringify(videoLinks));
+    
+                // Trim and save to cookie
+                const cookieLinks = trimCookie(videoLinks);
+                setCookie('videoLinks', JSON.stringify(cookieLinks), 30);
+    
                 await renderHistory();
             } catch (error) {
                 console.error('Error deleting link:', error);
