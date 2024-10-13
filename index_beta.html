@@ -288,11 +288,11 @@
     
         function trimCookie(videoLinks) {
             const MAX_COOKIE_SIZE = 3920;   // less 2% contingency..
-            videoLinks = videoLinks.slice(0, MAX_COOKIE_SIZE);
-            while (encodeURIComponent(JSON.stringify(videoLinks)).length > MAX_COOKIE_SIZE) {
-                videoLinks.pop();
+            let trimmedLinks = [...videoLinks];
+            while (encodeURIComponent(JSON.stringify(trimmedLinks)).length > MAX_COOKIE_SIZE) {
+                trimmedLinks.pop();
             }
-            return videoLinks;
+            return trimmedLinks;
         }
     
         async function getVideoLinks() {
