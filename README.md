@@ -1,5 +1,5 @@
 [https://cinkovic.github.io/yt-viewer/](https://cinkovic.github.io/yt-viewer/)
-# Supply valid YT link and enjoy without interruption..
+# Provide a valid YT link and enjoy your show without any interruption..
 #
 
 
