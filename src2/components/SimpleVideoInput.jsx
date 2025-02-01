@@ -31,7 +31,7 @@ function SimpleVideoInput() {
       <div id="inputForm" className="simple-version">
         <input
           type="text"
-          id="userInput"
+          id="userInputSimple"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Enter YouTube video link.."
