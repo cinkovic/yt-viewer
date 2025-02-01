@@ -90,9 +90,11 @@ body {
     }
     
     #userInputSimple {
-        width: calc(100% - 220px);
+        /* width: calc(100% - 220px); */
+        width: 60%;
     }
     
+
     #submitButton, #clearButton {
         width: auto;
         margin: 0 5px;
