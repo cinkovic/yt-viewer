@@ -119,6 +119,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    min-height: 91px; /* 75px thumbnail + 16px padding */
 }
 
 #history li:hover {
@@ -133,14 +134,17 @@ body {
     text-overflow: ellipsis;
     flex-grow: 1;
     margin-left: 10px;
+    min-width: 0; /* Ensures text truncation works */
 }
 
 .thumbnail {
     flex-shrink: 0;
     width: 100px;
-    height: auto;
+    height: 75px; /* YouTube thumbnail aspect ratio 4:3 */
     border-radius: 8px;
     margin-right: 10px;
+    background-color: #1a1a1a; /* Placeholder color while loading */
+    object-fit: cover;
 }
 
 .play-icon, .delete-icon {
