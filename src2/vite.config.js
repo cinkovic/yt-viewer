@@ -20,7 +20,15 @@ export default defineConfig({
       input: {
         main: './index.html',
         beta: './index_beta.html'
+      },
+      output: {
+        dir: 'dist',
+        entryFileNames: '[name].js',
+        assetFileNames: 'assets/[name].[ext]'
       }
-    }
+    },
+    outDir: 'dist',
+    emptyOutDir: true,
+    assetsDir: 'assets'
   }
 })
