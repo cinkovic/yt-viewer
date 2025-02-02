@@ -2,7 +2,7 @@ import React from 'react';
 
 function VersionSwitch() {
   const isBeta = window.location.pathname.includes('beta');
-  const href = isBeta ? '/' : '/beta';
+  const href = isBeta ? '/' : '/index_beta.html';
   
   return (
     <a href={href} id="bottomButton" aria-label={`Switch to ${isBeta ? 'simple' : 'beta'} version`}>
