@@ -33,12 +33,14 @@ function VideoInput() {
         placeholder="Enter YouTube video link.."
         aria-label="YouTube video link input"
       />
-      <button id="clearButton" onClick={handleClear} aria-label="Clear input">
-        Clear
-      </button>
-      <button id="submitButton" onClick={handleSubmit} aria-label="Watch video">
-        Watch
-      </button>
+      <div className="button-container">
+        <button id="clearButton" onClick={handleClear} aria-label="Clear input">
+          Clear
+        </button>
+        <button id="submitButton" onClick={handleSubmit} aria-label="Watch video">
+          Watch
+        </button>
+      </div>
     </div>
   );
 }

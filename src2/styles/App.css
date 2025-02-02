@@ -27,7 +27,24 @@ body {
     margin-bottom: 20px;
     height: auto;
     overflow: visible;
+}
 
+/* Add a container for buttons */
+#inputForm .button-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+}
+
+/* Swap button order on small screens */
+#clearButton {
+    order: 2; /* Clear button appears second on small screens */
+}
+
+#submitButton {
+    order: 1; /* Watch button appears first on small screens */
 }
 
 #userInput, #userInputSimple {
@@ -59,6 +76,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex: 0 1 auto; /* Allow buttons to shrink but not grow */
+    min-width: 80px; /* Minimum width for buttons */
 }
 
 #submitButton {
@@ -81,7 +100,11 @@ body {
         justify-content: center;
         align-items: center;
         height: 48px;
-        width: 100%;
+    }
+    
+    #inputForm .button-container {
+        width: auto;
+        flex: 0 0 auto;
     }
     
     #userInput, #userInputSimple {
@@ -94,11 +117,17 @@ body {
         width: 35%;
     }
     
-
     #submitButton, #clearButton {
-        width: auto;
-        margin: 0 5px;
-        flex-shrink: 0;
+        margin-bottom: 0;
+    }
+    
+    /* Reset button order on larger screens */
+    #clearButton {
+        order: 1;
+    }
+    
+    #submitButton {
+        order: 2;
     }
 }
 
