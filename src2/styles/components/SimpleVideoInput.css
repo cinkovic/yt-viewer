@@ -1,9 +1,10 @@
 .simple-version .input-field {
-  width: calc(100% - 30px);
+  width: calc(100% - var(--spacing-lg));
 }
 
 @media (min-width: 768px) {
   .simple-version .input-field {
-    width: 35%;
+    flex: 1;
+    min-width: 200px;
   }
 } 
