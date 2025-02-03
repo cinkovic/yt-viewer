@@ -1,11 +1,15 @@
-import React from 'react';
+import '../styles/components/VersionSwitch.css';
 
 function VersionSwitch() {
   const isBeta = window.location.pathname.includes('beta');
   const href = isBeta ? '/' : '/yt-viewer/index_beta.html';
   
   return (
-    <a href={href} id="bottomButton" aria-label={`Switch to ${isBeta ? 'simple' : 'beta'} version`}>
+    <a 
+      href={href} 
+      className="bottom-button" 
+      aria-label={`Switch to ${isBeta ? 'simple' : 'beta'} version`}
+    >
       <img 
         src="https://img.icons8.com/material-outlined/24/000000/lock--v1.png" 
         alt="Lock Closed" 

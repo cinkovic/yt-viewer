@@ -1,16 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { extractVideoId } from '../utils/videoUtils';
+import '../styles/components/SimpleVideoInput.css';
 
 function SimpleVideoInput() {
   const [inputValue, setInputValue] = useState('');
   const [popupVideo, setPopupVideo] = useState(null);
-
-  useEffect(() => {
-    const clearButton = document.getElementById('clearButton');
-    if (clearButton) {
-      clearButton.style.display = inputValue ? 'inline-flex' : 'none';
-    }
-  }, [inputValue]);
 
   const handleSubmit = () => {
     const videoId = extractVideoId(inputValue);
@@ -28,20 +22,30 @@ function SimpleVideoInput() {
 
   return (
     <>
-      <div id="inputForm" className="simple-version">
+      <div className="input-form simple-version">
         <input
           type="text"
-          id="userInputSimple"
+          className="input-field"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           placeholder="Enter YouTube video link.."
           aria-label="YouTube video link input"
         />
         <div className="button-container">
-          <button id="clearButton" onClick={handleClear} aria-label="Clear input">
-            Clear
-          </button>
-          <button id="submitButton" onClick={handleSubmit} aria-label="Watch video">
+          {inputValue && (
+            <button 
+              className="btn btn-secondary"
+              onClick={handleClear} 
+              aria-label="Clear input"
+            >
+              Clear
+            </button>
+          )}
+          <button 
+            className="btn btn-primary"
+            onClick={handleSubmit} 
+            aria-label="Watch video"
+          >
             Watch
           </button>
         </div>
@@ -57,14 +61,13 @@ function SimpleVideoInput() {
             }
           }}
         >
-          <div id="video-placeholder">
-            <iframe
-              src={`https://www.youtube-nocookie.com/embed/${popupVideo}?playlist=${popupVideo}&autoplay=1&iv_load_policy=3&loop=1&start=`}
-              frameBorder="0"
-              allowFullScreen
-              allow="autoplay"
-            />
-          </div>
+          <iframe
+            src={`https://www.youtube-nocookie.com/embed/${popupVideo}?playlist=${popupVideo}&autoplay=1&iv_load_policy=3&loop=1&start=`}
+            title="YouTube video player"
+            frameBorder="0"
+            allowFullScreen
+            allow="autoplay"
+          />
         </div>
       )}
     </>

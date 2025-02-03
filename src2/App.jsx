@@ -1,23 +1,18 @@
-import React from 'react';
 import VideoInput from './components/VideoInput';
 import VideoHistory from './components/VideoHistory';
 import VideoPopup from './components/VideoPopup';
 import CustomAlert from './components/CustomAlert';
-// import Container from './components/Container';
+import Container from './components/Layout/Container';
 import { VideoProvider } from './context/VideoContext';
 import './styles/App.css';
 
 function App() {
   return (
     <VideoProvider>
-      {/* <Container>
+      <Container>
         <VideoInput />
         <VideoHistory />
-      </Container> */}
-      <div className="container">
-        <VideoInput />
-        <VideoHistory />
-      </div>
+      </Container>
       <VideoPopup />
       <CustomAlert />
     </VideoProvider>

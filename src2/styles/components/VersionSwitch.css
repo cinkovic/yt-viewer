@@ -1,0 +1,81 @@
+.bottom-button {
+  margin-top: auto;
+  margin-bottom: var(--spacing-md);
+  background-color: var(--color-text);
+  border: none;
+  cursor: pointer;
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-circle);
+  font-size: 1.2em;
+  color: black;
+  transition: transform var(--transition-quick);
+  position: fixed;
+  bottom: var(--spacing-md);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  z-index: 1;
+}
+
+.bottom-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius-circle);
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: -1;
+  transition: opacity var(--transition-quick);
+  opacity: 0;
+}
+
+.bottom-button:hover::after {
+  opacity: 1;
+}
+
+.bottom-button:hover {
+  transform: translateX(-50%) scale(1.1);
+}
+
+.bottom-button img.lock-closed {
+  display: block;
+}
+
+.bottom-button img.lock-open {
+  display: none;
+  filter: grayscale(100%);
+}
+
+.bottom-button:hover img.lock-open {
+  display: block;
+}
+
+.bottom-button:hover img.lock-closed {
+  display: none;
+}
+
+.bottom-button:focus {
+  outline: none;
+}
+
+.bottom-button img {
+  pointer-events: none;
+}
+
+@media (max-height: 300px) {
+  .bottom-button {
+    display: none;
+  }
+} 

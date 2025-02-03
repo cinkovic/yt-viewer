@@ -1,5 +1,5 @@
-import React from 'react';
 import { useVideo } from '../context/VideoContext';
+import '../styles/components/VideoPopup.css';
 
 function VideoPopup() {
   const { popupVideo, closeVideo } = useVideo();
@@ -9,7 +9,6 @@ function VideoPopup() {
   return (
     <div 
       className="popup" 
-      id="popup"
       role="dialog" 
       aria-label="Video player"
       style={{ display: 'flex' }}
@@ -19,14 +18,13 @@ function VideoPopup() {
         }
       }}
     >
-      <div id="video-placeholder">
-        <iframe
-          src={`https://www.youtube-nocookie.com/embed/${popupVideo}?playlist=${popupVideo}&autoplay=1&iv_load_policy=3&loop=1&start=`}
-          frameBorder="0"
-          allowFullScreen
-          allow="autoplay"
-        />
-      </div>
+      <iframe
+        src={`https://www.youtube-nocookie.com/embed/${popupVideo}?playlist=${popupVideo}&autoplay=1&iv_load_policy=3&loop=1&start=`}
+        title="YouTube video player"
+        frameBorder="0"
+        allowFullScreen
+        allow="autoplay"
+      />
     </div>
   );
 }

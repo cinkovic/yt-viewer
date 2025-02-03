@@ -1,0 +1,37 @@
+:root {
+  /* Colors */
+  --color-background: #0f0f0f;
+  --color-primary: #f70606;
+  --color-text: white;
+  --color-surface: #2a2a2a;
+  --color-surface-hover: #1a1a1a;
+  
+  /* Spacing */
+  --spacing-xs: 7px;
+  --spacing-sm: 10px;
+  --spacing-md: 20px;
+  --spacing-lg: 30px;
+  
+  /* Border radius */
+  --radius-sm: 8px;
+  --radius-md: 15px;
+  --radius-lg: 20px;
+  --radius-pill: 30px;
+  --radius-circle: 50%;
+  
+  /* Font sizes */
+  --font-size-base: 16px;
+  --font-size-lg: 1.1em;
+  
+  /* Dimensions */
+  --input-height: 48px;
+  --thumbnail-width: 100px;
+  --thumbnail-height: 75px;
+  --icon-size: 30px;
+  
+  /* Transitions */
+  --transition-quick: 0.2s ease;
+  
+  /* Shadows */
+  --shadow-button: 0px 0px 15px rgba(255, 255, 255, 0.3);
+} 

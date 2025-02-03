@@ -1,5 +1,5 @@
-import React from 'react';
 import { useVideo } from '../context/VideoContext';
+import '../styles/components/CustomAlert.css';
 
 function CustomAlert() {
   const { alert, closeAlert } = useVideo();
@@ -7,9 +7,9 @@ function CustomAlert() {
   if (!alert.show) return null;
 
   return (
-    <div id="customAlert" className="custom-alert" style={{ display: 'block' }}>
+    <div className="custom-alert" style={{ display: 'block' }}>
       <div className="alert-content">
-        <p id="alertMessage">{alert.message}</p>
+        <p>{alert.message}</p>
         <button onClick={closeAlert}>OK</button>
       </div>
     </div>
