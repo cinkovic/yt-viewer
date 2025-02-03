@@ -5,7 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   root: '.',
-  base: '/',
+  // base: '/',
+  base: './',
   // base: '/yt-viewer/',
   server: {
     port: 5173,
