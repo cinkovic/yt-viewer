@@ -1,10 +1,39 @@
+/* Simple version specific overrides */
+.simple-version {
+  width: 90%;  /* Match container width from main app */
+  max-width: 700px;  /* Match container max-width */
+  margin: 0 auto;
+}
+
 .simple-version .input-field {
-  width: calc(100% - var(--spacing-lg));
+  width: 100%;  /* Full width on mobile */
+  margin-bottom: var(--spacing-xs);
+}
+
+.simple-version .button-container {
+  justify-content: center;
+  margin-top: 5px;
 }
 
 @media (min-width: 768px) {
+  .simple-version {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: var(--input-height);
+  }
+
   .simple-version .input-field {
     flex: 1;
     min-width: 200px;
+    max-width: 700px;  /* Ensure reasonable max width */
+    margin-right: var(--spacing-sm);
+    margin-bottom: 0;
+  }
+
+  .simple-version .button-container {
+    justify-content: flex-end;
+    margin-top: 0;
+    flex-shrink: 0;  /* Prevent buttons from shrinking */
   }
 } 
